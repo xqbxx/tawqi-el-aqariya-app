@@ -42,8 +42,8 @@ export function AddPropertyDialog({
   const [description, setDescription] = useState('')
   const [googleMapsUrl, setGoogleMapsUrl] = useState('')
   const [ownerName, setOwnerName] = useState('')
-  const [ownerPhone, setOwnerPhone] = useState('')
-  const [guardPhone, setGuardPhone] = useState('')
+  const [ownerPhone, setOwnerPhone] = useState('+966')
+  const [guardPhone, setGuardPhone] = useState('+966')
   const [images, setImages] = useState<string[]>([])
   const [dragOver, setDragOver] = useState(false)
   const [error, setError] = useState('')
@@ -85,6 +85,21 @@ export function AddPropertyDialog({
     setImages((prev) => prev.filter((_, idx) => idx !== i))
   }
 
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>, setter: (val: string) => void) => {
+    let val = e.target.value
+    // Allow only digits and plus sign
+    val = val.replace(/[^\d+]/g, '')
+    // Must start with +966
+    if (!val.startsWith('+966')) {
+      val = '+966'
+    }
+    // Limit to 13 characters (+966 and 9 digits)
+    if (val.length > 13) {
+      val = val.slice(0, 13)
+    }
+    setter(val)
+  }
+
   const reset = () => {
     setTitle('')
     setCategory('lands')
@@ -100,8 +115,8 @@ export function AddPropertyDialog({
     setDescription('')
     setGoogleMapsUrl('')
     setOwnerName('')
-    setOwnerPhone('')
-    setGuardPhone('')
+    setOwnerPhone('+966')
+    setGuardPhone('+966')
     setImages([])
     setError('')
   }
@@ -114,6 +129,12 @@ export function AddPropertyDialog({
       return setError('الرجاء إدخال اسم المنطقة المخصصة')
     if (isOtherSize && !customSize)
       return setError('الرجاء إدخال المساحة المخصصة')
+
+    if (ownerPhone !== '+966' && ownerPhone.length !== 13)
+      return setError('رقم جوال المالك يجب أن يكون بصيغة +966 متبوعاً بـ 9 أرقام')
+
+    if (guardPhone !== '+966' && guardPhone.length !== 13)
+      return setError('رقم جوال الحارس يجب أن يكون بصيغة +966 متبوعاً بـ 9 أرقام')
 
     const finalSize = isOtherSize ? Number(customSize) : Number(size)
 
@@ -134,8 +155,8 @@ export function AddPropertyDialog({
       description: description.trim() || 'لا يوجد وصف.',
       googleMapsUrl: googleMapsUrl.trim() || 'https://maps.google.com',
       ownerName: ownerName.trim() || '—',
-      ownerPhone: ownerPhone.trim() || '966500000000',
-      guardPhone: guardPhone.trim() || '966500000000',
+      ownerPhone: ownerPhone === '+966' ? '' : ownerPhone,
+      guardPhone: guardPhone === '+966' ? '' : guardPhone,
     }
 
     onAdd(property)
@@ -412,8 +433,8 @@ export function AddPropertyDialog({
               <TextInput
                 id="p-owner-phone"
                 value={ownerPhone}
-                onChange={(e) => setOwnerPhone(e.target.value)}
-                placeholder="9665xxxxxxxx"
+                onChange={(e) => handlePhoneChange(e, setOwnerPhone)}
+                placeholder="+9665xxxxxxxx"
                 dir="ltr"
               />
             </Field>
@@ -421,8 +442,8 @@ export function AddPropertyDialog({
               <TextInput
                 id="p-guard-phone"
                 value={guardPhone}
-                onChange={(e) => setGuardPhone(e.target.value)}
-                placeholder="9665xxxxxxxx"
+                onChange={(e) => handlePhoneChange(e, setGuardPhone)}
+                placeholder="+9665xxxxxxxx"
                 dir="ltr"
               />
             </Field>

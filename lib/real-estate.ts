@@ -99,4 +99,4 @@ export function formatSize(size: number): string {
 // Removed mock data
 
 // Placeholder public contact WhatsApp number (fallback)
-export const DEFAULT_WHATSAPP = '966500000000'
+export const DEFAULT_WHATSAPP = '966552245433'

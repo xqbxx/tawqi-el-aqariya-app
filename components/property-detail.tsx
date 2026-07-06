@@ -44,7 +44,7 @@ export function PropertyDetail({
       property,
     )}. هل مازال متاحاً؟`,
   )
-  const whatsappUrl = `https://wa.me/${property.ownerPhone}?text=${whatsappMessage}`
+  const whatsappUrl = `https://wa.me/${DEFAULT_WHATSAPP}?text=${whatsappMessage}`
 
   return (
     <Modal open={!!property} onClose={onClose} className="max-w-2xl" labelledBy="detail-title">

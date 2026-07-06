@@ -190,10 +190,6 @@ export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
                 <Button type="submit" size="lg" className="mt-1 h-12 w-full">
                   تسجيل الدخول
                 </Button>
-
-                <p className="text-center text-xs text-muted-foreground">
-                  بيانات تجريبية: admin / admin123
-                </p>
               </div>
             </form>
           </div>
