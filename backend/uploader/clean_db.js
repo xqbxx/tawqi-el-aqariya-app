@@ -1,6 +1,6 @@
 const { Client } = require("pg");
 
-async function checkDb() {
+async function cleanDb() {
     const client = new Client({
         connectionString: "postgresql://postgres.mcxkglaxpegfdjpdzjkk:Aa116600stt@aws-0-ap-northeast-1.pooler.supabase.com:5432/postgres",
         ssl: { rejectUnauthorized: false }
@@ -8,12 +8,12 @@ async function checkDb() {
 
     try {
         await client.connect();
-        const res = await client.query("SELECT \"Id\", \"Title\", \"Images\" FROM \"Properties\" ORDER BY \"Id\" DESC LIMIT 2");
-        console.log("Properties:", JSON.stringify(res.rows, null, 2).substring(0, 5000));
+        await client.query("DELETE FROM \"Properties\" WHERE \"Images\"[1] LIKE 'blob:%'");
+        console.log("Deleted old properties with blob URLs.");
     } catch (e) {
         console.error("DB Error:", e);
     } finally {
         await client.end();
     }
 }
-checkDb();
+cleanDb();

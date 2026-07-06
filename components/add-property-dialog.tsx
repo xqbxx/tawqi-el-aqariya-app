@@ -26,7 +26,7 @@ export function AddPropertyDialog({
 }: {
   open: boolean
   onClose: () => void
-  onAdd: (p: Property) => void
+  onAdd: (p: Property) => Promise<void>
 }) {
   const [title, setTitle] = useState('')
   const [category, setCategory] = useState('lands')
@@ -48,6 +48,7 @@ export function AddPropertyDialog({
   const [dragOver, setDragOver] = useState(false)
   const [error, setError] = useState('')
   const [isDetectingLocation, setIsDetectingLocation] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
 
   const handleDetectLocation = () => {
@@ -80,7 +81,35 @@ export function AddPropertyDialog({
         const reader = new FileReader()
         reader.onload = (e) => {
           if (e.target?.result) {
-            setImages((prev) => [...prev, e.target!.result as string])
+            const img = new Image()
+            img.onload = () => {
+              const canvas = document.createElement('canvas')
+              const MAX_WIDTH = 800
+              const MAX_HEIGHT = 800
+              let width = img.width
+              let height = img.height
+
+              if (width > height) {
+                if (width > MAX_WIDTH) {
+                  height = Math.round((height * MAX_WIDTH) / width)
+                  width = MAX_WIDTH
+                }
+              } else {
+                if (height > MAX_HEIGHT) {
+                  width = Math.round((width * MAX_HEIGHT) / height)
+                  height = MAX_HEIGHT
+                }
+              }
+              canvas.width = width
+              canvas.height = height
+              const ctx = canvas.getContext('2d')
+              if (ctx) {
+                ctx.drawImage(img, 0, 0, width, height)
+                const compressedBase64 = canvas.toDataURL('image/jpeg', 0.6)
+                setImages((prev) => [...prev, compressedBase64])
+              }
+            }
+            img.src = e.target.result as string
           }
         }
         reader.readAsDataURL(f)
@@ -128,7 +157,7 @@ export function AddPropertyDialog({
     setError('')
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!title.trim()) return setError('الرجاء إدخال عنوان العقار')
     if (!price) return setError('الرجاء إدخال السعر')
@@ -166,9 +195,14 @@ export function AddPropertyDialog({
       guardPhone: guardPhone === '+966' ? '' : guardPhone,
     }
 
-    onAdd(property)
-    reset()
-    onClose()
+    setIsSubmitting(true)
+    try {
+      await onAdd(property)
+      reset()
+      onClose()
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -464,12 +498,16 @@ export function AddPropertyDialog({
         )}
 
         <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-          <Button type="button" variant="outline" size="lg" className="h-11" onClick={onClose}>
+          <Button type="button" variant="outline" size="lg" className="h-11" onClick={onClose} disabled={isSubmitting}>
             إلغاء
           </Button>
-          <Button type="submit" size="lg" className="h-11">
-            <Plus className="size-5" />
-            نشر العقار
+          <Button type="submit" size="lg" className="h-11" disabled={isSubmitting}>
+            {isSubmitting ? (
+              <div className="size-5 animate-spin rounded-full border-b-2 border-white"></div>
+            ) : (
+              <Plus className="size-5" />
+            )}
+            {isSubmitting ? 'جاري النشر...' : 'نشر العقار'}
           </Button>
         </div>
       </form>
