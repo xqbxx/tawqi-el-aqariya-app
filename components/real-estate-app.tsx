@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { SearchX, AlertTriangle, ShieldCheck } from 'lucide-react'
 import { Navbar } from '@/components/navbar'
 import { FilterBar, EMPTY_FILTERS, type Filters } from '@/components/filter-bar'
@@ -10,11 +10,31 @@ import { AddPropertyDialog } from '@/components/add-property-dialog'
 import { Modal } from '@/components/ui/modal'
 import { Button } from '@/components/ui/button'
 import { Field, TextInput } from '@/components/ui/field'
-import { MOCK_PROPERTIES, STANDARD_SIZES, ADMIN_CREDENTIALS, type Property } from '@/lib/real-estate'
+import { STANDARD_SIZES, type Property } from '@/lib/real-estate'
 
 export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
   const [isAdmin, setIsAdmin] = useState(false)
-  const [properties, setProperties] = useState<Property[]>(MOCK_PROPERTIES)
+  const [properties, setProperties] = useState<Property[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    fetchProperties()
+  }, [])
+
+  const fetchProperties = async () => {
+    try {
+      setIsLoading(true)
+      const res = await fetch('https://tawqi-1.runasp.net/api/properties')
+      if (res.ok) {
+        const data = await res.json()
+        setProperties(data)
+      }
+    } catch (err) {
+      console.error('Failed to fetch properties', err)
+    } finally {
+      setIsLoading(false)
+    }
+  }
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS)
   const [selected, setSelected] = useState<Property | null>(null)
   const [showAdd, setShowAdd] = useState(false)
@@ -40,16 +60,86 @@ export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
     })
   }, [properties, filters])
 
-  const handleLoginSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    if (mode === 'admin') {
+      const token = localStorage.getItem('adminToken')
+      if (token) setIsAdmin(true)
+    }
+  }, [mode])
+
+  const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (
-      loginUsername.trim() === ADMIN_CREDENTIALS.username &&
-      loginPassword === ADMIN_CREDENTIALS.password
-    ) {
-      setLoginError('')
-      setIsAdmin(true)
-    } else {
-      setLoginError('اسم المستخدم أو كلمة المرور غير صحيحة')
+    try {
+      const res = await fetch('https://tawqi-1.runasp.net/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: loginUsername.trim(), password: loginPassword })
+      })
+
+      if (res.ok) {
+        const data = await res.json()
+        localStorage.setItem('adminToken', data.token)
+        setLoginError('')
+        setIsAdmin(true)
+      } else {
+        setLoginError('اسم المستخدم أو كلمة المرور غير صحيحة')
+      }
+    } catch (err) {
+      setLoginError('حدث خطأ في الاتصال بالخادم')
+    }
+  }
+
+  const handleLogout = () => {
+    localStorage.removeItem('adminToken')
+    setIsAdmin(false)
+  }
+
+  const handleDeleteProperty = async () => {
+    if (!propertyToDelete) return
+    const token = localStorage.getItem('adminToken')
+    try {
+      const res = await fetch(`https://tawqi-1.runasp.net/api/properties/${propertyToDelete.id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+      if (res.ok) {
+        setProperties((prev) => prev.filter((p) => p.id !== propertyToDelete.id))
+        if (selected?.id === propertyToDelete.id) {
+          setSelected(null)
+        }
+      } else {
+        console.error('Failed to delete property on server')
+      }
+    } catch (err) {
+      console.error('Delete request failed', err)
+    } finally {
+      setPropertyToDelete(null)
+    }
+  }
+
+  const handleAddProperty = async (newProp: Property) => {
+    const token = localStorage.getItem('adminToken')
+    try {
+      // Remove id before sending, let DB generate it
+      const { id, ...propData } = newProp as any
+      const res = await fetch('https://tawqi-1.runasp.net/api/properties', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(propData)
+      })
+      if (res.ok) {
+        const created = await res.json()
+        setProperties((prev) => [created, ...prev])
+      } else {
+        console.error('Failed to add property on server')
+      }
+    } catch (err) {
+      console.error('Add request failed', err)
     }
   }
 
@@ -120,7 +210,7 @@ export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
       <Navbar
         mode={mode}
         isAdmin={effectiveIsAdmin}
-        onLogout={() => setIsAdmin(false)}
+        onLogout={handleLogout}
         onAddProperty={() => setShowAdd(true)}
       />
 
@@ -145,7 +235,11 @@ export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
           </div>
 
           <div>
-            {filtered.length === 0 ? (
+            {isLoading ? (
+              <div className="flex justify-center items-center py-20">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+              </div>
+            ) : filtered.length === 0 ? (
               <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-card py-20 text-center">
                 <SearchX className="size-12 text-muted-foreground" />
                 <h3 className="mt-4 text-lg font-bold text-foreground">لا توجد عقارات مطابقة</h3>
@@ -189,7 +283,7 @@ export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
         <AddPropertyDialog
           open={showAdd}
           onClose={() => setShowAdd(false)}
-          onAdd={(p) => setProperties((prev) => [p, ...prev])}
+          onAdd={handleAddProperty}
         />
       )}
       <Modal
@@ -210,15 +304,7 @@ export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
           </Button>
           <Button
             variant="destructive"
-            onClick={() => {
-              if (propertyToDelete) {
-                setProperties((prev) => prev.filter((p) => p.id !== propertyToDelete.id))
-                if (selected?.id === propertyToDelete.id) {
-                  setSelected(null)
-                }
-                setPropertyToDelete(null)
-              }
-            }}
+            onClick={handleDeleteProperty}
           >
             تأكيد الحذف
           </Button>

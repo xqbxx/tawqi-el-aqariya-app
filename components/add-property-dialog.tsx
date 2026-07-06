@@ -118,7 +118,7 @@ export function AddPropertyDialog({
     const finalSize = isOtherSize ? Number(customSize) : Number(size)
 
     const property: Property = {
-      id: `p${++idCounter}`,
+      id: 0,
       title: title.trim(),
       images: images.length ? images : ['/placeholder.svg?height=400&width=600'],
       category,
