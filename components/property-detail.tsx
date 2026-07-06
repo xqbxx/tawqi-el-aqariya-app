@@ -23,6 +23,7 @@ import {
   formatPrice,
   formatSize,
   regionLabel,
+  DEFAULT_WHATSAPP,
   type Property,
 } from '@/lib/real-estate'
 
