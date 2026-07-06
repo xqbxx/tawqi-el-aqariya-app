@@ -5,15 +5,17 @@ import { LogIn, LogOut, Plus, Menu, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 export function Navbar({
+  mode,
   isAdmin,
   onLoginClick,
   onLogout,
   onAddProperty,
 }: {
-  isAdmin: boolean
-  onLoginClick: () => void
-  onLogout: () => void
-  onAddProperty: () => void
+  mode: 'public' | 'admin'
+  isAdmin?: boolean
+  onLoginClick?: () => void
+  onLogout?: () => void
+  onAddProperty?: () => void
 }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
@@ -35,61 +37,65 @@ export function Navbar({
           </div>
         </div>
 
-        <div className="hidden md:flex items-center gap-2">
-          {isAdmin && (
-            <Button
-              onClick={onAddProperty}
-              size="lg"
-              className="bg-primary-foreground text-primary hover:bg-primary-foreground/90"
-            >
-              <Plus className="size-4 ml-1.5" />
-              <span>إضافة عقار</span>
-            </Button>
-          )}
-          {isAdmin ? (
-            <Button
-              onClick={onLogout}
-              variant="outline"
-              size="lg"
-              className="border-primary-foreground/40 bg-transparent text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
-            >
-              <LogOut className="size-4 ml-1.5" />
-              <span>تسجيل الخروج</span>
-            </Button>
-          ) : (
-            <Button
-              onClick={onLoginClick}
-              variant="outline"
-              size="lg"
-              className="border-primary-foreground/40 bg-transparent text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
-            >
-              <LogIn className="size-4 ml-1.5" />
-              <span>تسجيل الدخول</span>
-            </Button>
-          )}
-        </div>
+        {mode === 'admin' && (
+          <>
+            <div className="hidden md:flex items-center gap-2">
+              {isAdmin && (
+                <Button
+                  onClick={onAddProperty}
+                  size="lg"
+                  className="bg-primary-foreground text-primary hover:bg-primary-foreground/90"
+                >
+                  <Plus className="size-4 ml-1.5" />
+                  <span>إضافة عقار</span>
+                </Button>
+              )}
+              {isAdmin ? (
+                <Button
+                  onClick={onLogout}
+                  variant="outline"
+                  size="lg"
+                  className="border-primary-foreground/40 bg-transparent text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
+                >
+                  <LogOut className="size-4 ml-1.5" />
+                  <span>تسجيل الخروج</span>
+                </Button>
+              ) : (
+                <Button
+                  onClick={onLoginClick}
+                  variant="outline"
+                  size="lg"
+                  className="border-primary-foreground/40 bg-transparent text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
+                >
+                  <LogIn className="size-4 ml-1.5" />
+                  <span>تسجيل الدخول</span>
+                </Button>
+              )}
+            </div>
 
-        {/* Mobile Navigation Toggle */}
-        <div className="md:hidden">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground border border-transparent"
-          >
-            {isMenuOpen ? <X className="size-6" /> : <Menu className="size-6" />}
-          </Button>
-        </div>
+            {/* Mobile Navigation Toggle */}
+            <div className="md:hidden">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground border border-transparent"
+              >
+                {isMenuOpen ? <X className="size-6" /> : <Menu className="size-6" />}
+              </Button>
+            </div>
+          </>
+        )}
       </div>
 
       {/* Mobile Menu */}
-      {isMenuOpen && (
+      {mode === 'admin' && isMenuOpen && (
         <div className="border-t border-primary-foreground/10 bg-primary px-4 py-4 shadow-inner md:hidden">
           <div className="flex flex-col gap-3">
             {isAdmin && (
               <Button
                 onClick={() => {
-                  onAddProperty()
+                  onAddProperty?.()
                   setIsMenuOpen(false)
                 }}
                 size="lg"
@@ -102,7 +108,7 @@ export function Navbar({
             {isAdmin ? (
               <Button
                 onClick={() => {
-                  onLogout()
+                  onLogout?.()
                   setIsMenuOpen(false)
                 }}
                 variant="outline"
@@ -115,7 +121,7 @@ export function Navbar({
             ) : (
               <Button
                 onClick={() => {
-                  onLoginClick()
+                  onLoginClick?.()
                   setIsMenuOpen(false)
                 }}
                 variant="outline"

@@ -1,24 +1,26 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { SearchX, AlertTriangle } from 'lucide-react'
+import { SearchX, AlertTriangle, ShieldCheck } from 'lucide-react'
 import { Navbar } from '@/components/navbar'
 import { FilterBar, EMPTY_FILTERS, type Filters } from '@/components/filter-bar'
 import { PropertyCard } from '@/components/property-card'
 import { PropertyDetail } from '@/components/property-detail'
-import { LoginDialog } from '@/components/login-dialog'
 import { AddPropertyDialog } from '@/components/add-property-dialog'
 import { Modal } from '@/components/ui/modal'
 import { Button } from '@/components/ui/button'
-import { MOCK_PROPERTIES, STANDARD_SIZES, type Property } from '@/lib/real-estate'
+import { Field, TextInput } from '@/components/ui/field'
+import { MOCK_PROPERTIES, STANDARD_SIZES, ADMIN_CREDENTIALS, type Property } from '@/lib/real-estate'
 
-export function RealEstateApp() {
+export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
   const [isAdmin, setIsAdmin] = useState(false)
   const [properties, setProperties] = useState<Property[]>(MOCK_PROPERTIES)
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS)
   const [selected, setSelected] = useState<Property | null>(null)
-  const [showLogin, setShowLogin] = useState(false)
   const [showAdd, setShowAdd] = useState(false)
+  const [loginUsername, setLoginUsername] = useState('')
+  const [loginPassword, setLoginPassword] = useState('')
+  const [loginError, setLoginError] = useState('')
   const [propertyToDelete, setPropertyToDelete] = useState<Property | null>(null)
 
   const filtered = useMemo(() => {
@@ -38,11 +40,86 @@ export function RealEstateApp() {
     })
   }, [properties, filters])
 
+  const handleLoginSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (
+      loginUsername.trim() === ADMIN_CREDENTIALS.username &&
+      loginPassword === ADMIN_CREDENTIALS.password
+    ) {
+      setLoginError('')
+      setIsAdmin(true)
+    } else {
+      setLoginError('اسم المستخدم أو كلمة المرور غير صحيحة')
+    }
+  }
+
+  if (mode === 'admin' && !isAdmin) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col">
+        <Navbar mode="admin" isAdmin={false} />
+        <div className="flex-1 flex items-center justify-center p-4">
+          <div className="w-full max-w-md rounded-2xl border border-border bg-card shadow-sm p-6">
+            <form onSubmit={handleLoginSubmit}>
+              <div className="mb-5 flex flex-col items-center text-center">
+                <div className="flex size-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                  <ShieldCheck className="size-7" />
+                </div>
+                <h2 className="mt-3 text-xl font-extrabold text-foreground">دخول المشرف</h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  الرجاء إدخال بيانات الدخول للوصول إلى لوحة الإدارة
+                </p>
+              </div>
+
+              <div className="flex flex-col gap-4">
+                <Field label="اسم المستخدم" htmlFor="username">
+                  <TextInput
+                    id="username"
+                    value={loginUsername}
+                    onChange={(e) => setLoginUsername(e.target.value)}
+                    placeholder="admin"
+                    autoComplete="username"
+                  />
+                </Field>
+                <Field label="كلمة المرور" htmlFor="password">
+                  <TextInput
+                    id="password"
+                    type="password"
+                    value={loginPassword}
+                    onChange={(e) => setLoginPassword(e.target.value)}
+                    placeholder="••••••••"
+                    autoComplete="current-password"
+                  />
+                </Field>
+
+                {loginError && (
+                  <p className="rounded-lg bg-destructive/10 px-3 py-2 text-sm font-medium text-destructive">
+                    {loginError}
+                  </p>
+                )}
+
+                <Button type="submit" size="lg" className="mt-1 h-12 w-full">
+                  تسجيل الدخول
+                </Button>
+
+                <p className="text-center text-xs text-muted-foreground">
+                  بيانات تجريبية: admin / admin123
+                </p>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Force isAdmin to false in public mode to prevent any admin features from showing
+  const effectiveIsAdmin = mode === 'admin' ? isAdmin : false
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar
-        isAdmin={isAdmin}
-        onLoginClick={() => setShowLogin(true)}
+        mode={mode}
+        isAdmin={effectiveIsAdmin}
         onLogout={() => setIsAdmin(false)}
         onAddProperty={() => setShowAdd(true)}
       />
@@ -82,7 +159,7 @@ export function RealEstateApp() {
                   <PropertyCard
                     key={p.id}
                     property={p}
-                    isAdmin={isAdmin}
+                    isAdmin={effectiveIsAdmin}
                     onClick={() => setSelected(p)}
                     onDelete={() => setPropertyToDelete(p)}
                   />
@@ -107,20 +184,14 @@ export function RealEstateApp() {
       </footer>
 
       {/* Dialogs */}
-      <PropertyDetail property={selected} isAdmin={isAdmin} onClose={() => setSelected(null)} />
-      <LoginDialog
-        open={showLogin}
-        onClose={() => setShowLogin(false)}
-        onSuccess={() => {
-          setIsAdmin(true)
-          setShowLogin(false)
-        }}
-      />
-      <AddPropertyDialog
-        open={showAdd}
-        onClose={() => setShowAdd(false)}
-        onAdd={(p) => setProperties((prev) => [p, ...prev])}
-      />
+      <PropertyDetail property={selected} isAdmin={effectiveIsAdmin} onClose={() => setSelected(null)} />
+      {mode === 'admin' && (
+        <AddPropertyDialog
+          open={showAdd}
+          onClose={() => setShowAdd(false)}
+          onAdd={(p) => setProperties((prev) => [p, ...prev])}
+        />
+      )}
       <Modal
         open={!!propertyToDelete}
         onClose={() => setPropertyToDelete(null)}
