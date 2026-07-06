@@ -75,10 +75,17 @@ export function AddPropertyDialog({
 
   const addFiles = (files: FileList | null) => {
     if (!files) return
-    const urls = Array.from(files)
-      .filter((f) => f.type.startsWith('image/'))
-      .map((f) => URL.createObjectURL(f))
-    setImages((prev) => [...prev, ...urls])
+    Array.from(files).forEach((f) => {
+      if (f.type.startsWith('image/')) {
+        const reader = new FileReader()
+        reader.onload = (e) => {
+          if (e.target?.result) {
+            setImages((prev) => [...prev, e.target!.result as string])
+          }
+        }
+        reader.readAsDataURL(f)
+      }
+    })
   }
 
   const removeImage = (i: number) => {
