@@ -1,6 +1,14 @@
 J:\downloads\tawqi-el-aqariya-app\backend\publish\TawqiApi.exe
+J:\downloads\tawqi-el-aqariya-app\backend\publish\publish\web.config
 J:\downloads\tawqi-el-aqariya-app\backend\publish\appsettings.Development.json
 J:\downloads\tawqi-el-aqariya-app\backend\publish\appsettings.json
+J:\downloads\tawqi-el-aqariya-app\backend\publish\publish\appsettings.Development.json
+J:\downloads\tawqi-el-aqariya-app\backend\publish\publish\appsettings.json
+J:\downloads\tawqi-el-aqariya-app\backend\publish\publish\TawqiApi.deps.json
+J:\downloads\tawqi-el-aqariya-app\backend\publish\publish\TawqiApi.runtimeconfig.json
+J:\downloads\tawqi-el-aqariya-app\backend\publish\publish\TawqiApi.staticwebassets.endpoints.json
+J:\downloads\tawqi-el-aqariya-app\backend\publish\uploader\package-lock.json
+J:\downloads\tawqi-el-aqariya-app\backend\publish\uploader\package.json
 J:\downloads\tawqi-el-aqariya-app\backend\publish\TawqiApi.dll
 J:\downloads\tawqi-el-aqariya-app\backend\publish\TawqiApi.runtimeconfig.json
 J:\downloads\tawqi-el-aqariya-app\backend\publish\TawqiApi.pdb

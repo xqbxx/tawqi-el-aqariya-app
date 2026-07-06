@@ -60,7 +60,7 @@ async function uploadFiles() {
     console.log("Upload completed!");
 }
 
-async function prepareRoot() {
+async function setOffline(offline) {
     const client = new ftp.Client();
     try {
         await client.access({
@@ -70,8 +70,14 @@ async function prepareRoot() {
             secure: false
         });
         await client.cd("wwwroot");
-        try { await client.remove("default.html"); console.log("Deleted default.html"); } catch(e){}
-        try { await client.remove("hostingstart.html"); console.log("Deleted hostingstart.html"); } catch(e){}
+        if (offline) {
+            // Write a temporary local file
+            fs.writeFileSync("app_offline.htm", "Site is updating.");
+            await client.uploadFrom("app_offline.htm", "app_offline.htm");
+            console.log("App taken offline.");
+        } else {
+            try { await client.remove("app_offline.htm"); console.log("App brought online."); } catch(e){}
+        }
     } catch (e) {
         console.error(e);
     } finally {
@@ -80,8 +86,11 @@ async function prepareRoot() {
 }
 
 async function run() {
-    await prepareRoot();
+    await setOffline(true);
+    // Wait a few seconds for IIS to recycle
+    await new Promise(r => setTimeout(r, 3000));
     await uploadFiles();
+    await setOffline(false);
 }
 
 run();

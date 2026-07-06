@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("TawqiApi")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c5509dfbbc57ba96a51efbc5d755d353af633f43")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c540685baa059e2f48e2beaaaaaca174723e1c32")]
 [assembly: System.Reflection.AssemblyProductAttribute("TawqiApi")]
 [assembly: System.Reflection.AssemblyTitleAttribute("TawqiApi")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
