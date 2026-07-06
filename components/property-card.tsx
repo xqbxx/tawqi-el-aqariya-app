@@ -79,7 +79,7 @@ export function PropertyCard({
           </span>
           <span className="flex items-center gap-1">
             <Maximize className="size-4 text-primary" />
-            {formatSize(property.size)} م²
+            {formatSize(property.size)} م
           </span>
         </div>
 

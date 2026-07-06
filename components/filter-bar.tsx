@@ -115,7 +115,7 @@ export function FilterBar({
         </Field>
 
         {/* Size */}
-        <Field label="المساحة (م²)" htmlFor="filter-size">
+        <Field label="المساحة (م)" htmlFor="filter-size">
           <Select
             id="filter-size"
             value={filters.size}
@@ -124,7 +124,7 @@ export function FilterBar({
             <option value="">كل المساحات</option>
             {STANDARD_SIZES.map((s) => (
               <option key={s} value={String(s)}>
-                {formatSize(s)} م²
+                {formatSize(s)} م
               </option>
             ))}
             <option value="other">أخرى (مساحات مخصصة)</option>

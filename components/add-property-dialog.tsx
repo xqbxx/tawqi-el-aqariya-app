@@ -241,11 +241,11 @@ export function AddPropertyDialog({
             </Field>
           )}
 
-          <Field label="المساحة (م²)" htmlFor="p-size">
+          <Field label="المساحة (م)" htmlFor="p-size">
             <Select id="p-size" value={size} onChange={(e) => setSize(e.target.value)}>
               {STANDARD_SIZES.map((s) => (
                 <option key={s} value={String(s)}>
-                  {formatSize(s)} م²
+                  {formatSize(s)} م
                 </option>
               ))}
               <option value="other">أخرى</option>
@@ -254,7 +254,7 @@ export function AddPropertyDialog({
 
           {/* Dynamic custom size */}
           {isOtherSize && (
-            <Field label="المساحة المخصصة (م²)" htmlFor="p-custom-size">
+            <Field label="المساحة المخصصة (م)" htmlFor="p-custom-size">
               <TextInput
                 id="p-custom-size"
                 type="number"

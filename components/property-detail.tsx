@@ -78,7 +78,7 @@ export function PropertyDetail({
         {/* Specs */}
         <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
           <Spec icon={MapPin} label="المنطقة" value={regionLabel(property)} />
-          <Spec icon={Maximize} label="المساحة" value={`${formatSize(property.size)} م²`} />
+          <Spec icon={Maximize} label="المساحة" value={`${formatSize(property.size)} م`} />
           <Spec icon={Tag} label="التصنيف" value={categoryLabel(property)} />
           <Spec icon={Ruler} label="عرض الشارع" value={`${property.streetWidth} م`} />
           <Spec
