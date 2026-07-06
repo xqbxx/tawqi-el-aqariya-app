@@ -40,6 +40,7 @@ export function PropertyCard({
         <img
           src={property.images[0] || '/placeholder.svg'}
           alt={property.title}
+          loading="lazy"
           className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
         />
         <span className="absolute right-3 top-3 rounded-full bg-primary px-3 py-1 text-xs font-bold text-primary-foreground shadow">
