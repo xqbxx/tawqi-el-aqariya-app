@@ -1,7 +1,7 @@
 'use client'
 
 import { useRef, useState } from 'react'
-import { ImagePlus, Lock, Plus, Trash2, UploadCloud } from 'lucide-react'
+import { ImagePlus, Lock, Plus, Trash2, UploadCloud, MapPin } from 'lucide-react'
 import { Modal } from '@/components/ui/modal'
 import { Button } from '@/components/ui/button'
 import { Field, Select, TextArea, TextInput } from '@/components/ui/field'
@@ -47,7 +47,28 @@ export function AddPropertyDialog({
   const [images, setImages] = useState<string[]>([])
   const [dragOver, setDragOver] = useState(false)
   const [error, setError] = useState('')
+  const [isDetectingLocation, setIsDetectingLocation] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
+
+  const handleDetectLocation = () => {
+    if (!navigator.geolocation) {
+      setError('المتصفح لا يدعم تحديد الموقع.')
+      return
+    }
+    setIsDetectingLocation(true)
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords
+        setGoogleMapsUrl(`https://www.google.com/maps?q=${latitude},${longitude}`)
+        setIsDetectingLocation(false)
+        setError('')
+      },
+      (err) => {
+        setError('تعذر الحصول على الموقع. يرجى التأكد من إعطاء الصلاحيات.')
+        setIsDetectingLocation(false)
+      }
+    )
+  }
 
   const isOtherRegion = region === 'other'
   const isOtherSize = size === 'other'
@@ -270,13 +291,26 @@ export function AddPropertyDialog({
           </Field>
 
           <Field label="رابط موقع جوجل ماب" htmlFor="p-gmaps" className="sm:col-span-2">
-            <TextInput
-              id="p-gmaps"
-              value={googleMapsUrl}
-              onChange={(e) => setGoogleMapsUrl(e.target.value)}
-              placeholder="https://maps.app.goo.gl/..."
-              dir="ltr"
-            />
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <TextInput
+                id="p-gmaps"
+                value={googleMapsUrl}
+                onChange={(e) => setGoogleMapsUrl(e.target.value)}
+                placeholder="https://maps.app.goo.gl/..."
+                dir="ltr"
+                className="flex-1"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleDetectLocation}
+                disabled={isDetectingLocation}
+                className="whitespace-nowrap h-10"
+              >
+                <MapPin className="size-4 ml-2" />
+                {isDetectingLocation ? 'جاري التحديد...' : 'تحديد موقعي'}
+              </Button>
+            </div>
           </Field>
 
           <Field label="الوصف" htmlFor="p-desc" className="sm:col-span-2">
