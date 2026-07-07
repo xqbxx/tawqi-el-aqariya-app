@@ -25,7 +25,7 @@ export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
     const connection = new HubConnectionBuilder()
       .withUrl('https://tawqi-1.runasp.net/hubs/property')
       .withAutomaticReconnect([0, 2000, 5000, 10000, 30000]) // Retry immediately, then 2s, 5s, 10s, 30s...
-      .configureLogging(LogLevel.Information)
+      .configureLogging(LogLevel.Warning)
       .build()
 
     connection.on('PropertyAdded', (newProp: Property) => {
@@ -49,8 +49,18 @@ export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
 
     connection.start().catch(err => console.error('SignalR connection error: ', err))
 
+    // Polling fallback: in case SignalR misses events (common on IIS/shared hosting),
+    // re-sync with server every 30 seconds silently in the background.
+    const pollInterval = setInterval(() => {
+      if (connection.state !== 'Connected') {
+        // Only poll if SignalR is disconnected to avoid unnecessary requests
+        fetchProperties()
+      }
+    }, 30000)
+
     return () => {
       connection.stop()
+      clearInterval(pollInterval)
     }
   }, [])
 
@@ -130,25 +140,34 @@ export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
   const handleDeleteProperty = async () => {
     if (!propertyToDelete) return
     const token = localStorage.getItem('adminToken')
+    const idToDelete = propertyToDelete.id
+    const deletedProperty = propertyToDelete
+
+    // 1. OPTIMISTIC UPDATE: Remove from UI immediately before server response
+    setPropertyToDelete(null)
+    setProperties((prev) => prev.filter((p) => p.id !== idToDelete))
+    if (selected?.id === idToDelete) {
+      setSelected(null)
+    }
+
+    // 2. Send DELETE request to server in the background
     try {
-      const res = await fetch(`https://tawqi-1.runasp.net/api/properties/${propertyToDelete.id}`, {
+      const res = await fetch(`https://tawqi-1.runasp.net/api/properties/${idToDelete}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
         }
       })
-      if (res.ok) {
-        setProperties((prev) => prev.filter((p) => p.id !== propertyToDelete.id))
-        if (selected?.id === propertyToDelete.id) {
-          setSelected(null)
-        }
-      } else {
-        console.error('Failed to delete property on server')
+      if (!res.ok) {
+        // Server failed: rollback the optimistic update
+        console.error('Failed to delete property on server, rolling back...')
+        setProperties((prev) => [deletedProperty, ...prev])
       }
+      // On success: SignalR will notify other connected devices automatically
     } catch (err) {
-      console.error('Delete request failed', err)
-    } finally {
-      setPropertyToDelete(null)
+      // Network error: rollback the optimistic update
+      console.error('Delete request failed, rolling back...', err)
+      setProperties((prev) => [deletedProperty, ...prev])
     }
   }
 
