@@ -10,6 +10,7 @@ import { AddPropertyDialog } from '@/components/add-property-dialog'
 import { Modal } from '@/components/ui/modal'
 import { Button } from '@/components/ui/button'
 import { Field, TextInput } from '@/components/ui/field'
+import { HubConnectionBuilder, LogLevel } from '@microsoft/signalr'
 import { STANDARD_SIZES, type Property } from '@/lib/real-estate'
 
 export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
@@ -19,6 +20,38 @@ export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
 
   useEffect(() => {
     fetchProperties()
+
+    // Initialize SignalR connection with Auto-Reconnect
+    const connection = new HubConnectionBuilder()
+      .withUrl('https://tawqi-1.runasp.net/hubs/property')
+      .withAutomaticReconnect([0, 2000, 5000, 10000, 30000]) // Retry immediately, then 2s, 5s, 10s, 30s...
+      .configureLogging(LogLevel.Information)
+      .build()
+
+    connection.on('PropertyAdded', (newProp: Property) => {
+      setProperties(prev => prev.some(p => p.id === newProp.id) ? prev : [newProp, ...prev])
+    })
+
+    connection.on('PropertyUpdated', (updatedProp: Property) => {
+      setProperties(prev => prev.map(p => p.id === updatedProp.id ? updatedProp : p))
+    })
+
+    connection.on('PropertyDeleted', (deletedId: number) => {
+      setProperties(prev => prev.filter(p => p.id !== deletedId))
+      setSelected(prev => prev?.id === deletedId ? null : prev)
+    })
+
+    connection.onreconnected(() => {
+      // If the connection drops and reconnects, fetch full list to catch missed events
+      console.log('SignalR reconnected. Refetching properties...')
+      fetchProperties()
+    })
+
+    connection.start().catch(err => console.error('SignalR connection error: ', err))
+
+    return () => {
+      connection.stop()
+    }
   }, [])
 
   const fetchProperties = async () => {
