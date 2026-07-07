@@ -11,6 +11,8 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddHttpClient<TawqiApi.Services.SupabaseStorageService>();
+
 // Configure CORS
 builder.Services.AddCors(options =>
 {

@@ -105,7 +105,7 @@ export function AddPropertyDialog({
               const ctx = canvas.getContext('2d')
               if (ctx) {
                 ctx.drawImage(img, 0, 0, width, height)
-                const compressedBase64 = canvas.toDataURL('image/jpeg', 0.6)
+                const compressedBase64 = canvas.toDataURL('image/webp', 0.8)
                 setImages((prev) => [...prev, compressedBase64])
               }
             }

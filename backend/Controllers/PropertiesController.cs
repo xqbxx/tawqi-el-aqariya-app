@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TawqiApi.Data;
 using TawqiApi.Models;
+using TawqiApi.Services;
 
 namespace TawqiApi.Controllers
 {
@@ -11,10 +12,12 @@ namespace TawqiApi.Controllers
     public class PropertiesController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly SupabaseStorageService _storageService;
 
-        public PropertiesController(ApplicationDbContext context)
+        public PropertiesController(ApplicationDbContext context, SupabaseStorageService storageService)
         {
             _context = context;
+            _storageService = storageService;
         }
 
         // GET: api/Properties
@@ -57,6 +60,35 @@ namespace TawqiApi.Controllers
         [HttpPost]
         public async Task<ActionResult<Property>> PostProperty(Property property)
         {
+            // Process images
+            var publicUrls = new List<string>();
+            foreach (var image in property.Images)
+            {
+                if (image.StartsWith("data:image/webp;base64,"))
+                {
+                    try
+                    {
+                        var base64Data = image.Substring("data:image/webp;base64,".Length);
+                        var imageBytes = Convert.FromBase64String(base64Data);
+                        var fileName = $"{Guid.NewGuid()}.webp";
+                        
+                        var publicUrl = await _storageService.UploadImageAsync(imageBytes, fileName);
+                        publicUrls.Add(publicUrl);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Log error and return 500 if upload fails
+                        return StatusCode(500, $"Failed to upload image: {ex.Message}");
+                    }
+                }
+                else
+                {
+                    publicUrls.Add(image);
+                }
+            }
+            
+            property.Images = publicUrls;
+
             _context.Properties.Add(property);
             await _context.SaveChangesAsync();
 
@@ -103,6 +135,20 @@ namespace TawqiApi.Controllers
             if (property == null)
             {
                 return NotFound();
+            }
+
+            // Auto-cleanup: Delete images from Supabase Storage
+            foreach (var imageUrl in property.Images)
+            {
+                try
+                {
+                    await _storageService.DeleteImageAsync(imageUrl);
+                }
+                catch (Exception ex)
+                {
+                    // If deletion fails, return 500 so the DB record is not orphaned
+                    return StatusCode(500, $"Failed to delete image from storage: {ex.Message}");
+                }
             }
 
             _context.Properties.Remove(property);
