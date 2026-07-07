@@ -5,6 +5,9 @@ using TawqiApi.Data;
 using TawqiApi.Models;
 using TawqiApi.Services;
 
+using Microsoft.AspNetCore.SignalR;
+using TawqiApi.Hubs;
+
 namespace TawqiApi.Controllers
 {
     [Route("api/[controller]")]
@@ -13,11 +16,22 @@ namespace TawqiApi.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly SupabaseStorageService _storageService;
+        private readonly IHubContext<PropertyHub> _hubContext;
+        private readonly IBackgroundTaskQueue _taskQueue;
+        private readonly IServiceScopeFactory _serviceScopeFactory;
 
-        public PropertiesController(ApplicationDbContext context, SupabaseStorageService storageService)
+        public PropertiesController(
+            ApplicationDbContext context, 
+            SupabaseStorageService storageService,
+            IHubContext<PropertyHub> hubContext,
+            IBackgroundTaskQueue taskQueue,
+            IServiceScopeFactory serviceScopeFactory)
         {
             _context = context;
             _storageService = storageService;
+            _hubContext = hubContext;
+            _taskQueue = taskQueue;
+            _serviceScopeFactory = serviceScopeFactory;
         }
 
         // GET: api/Properties
@@ -92,6 +106,9 @@ namespace TawqiApi.Controllers
             _context.Properties.Add(property);
             await _context.SaveChangesAsync();
 
+            // Notify all clients about the new property
+            await _hubContext.Clients.All.SendAsync("PropertyAdded", property);
+
             return CreatedAtAction(nameof(GetProperty), new { id = property.Id }, property);
         }
 
@@ -110,6 +127,9 @@ namespace TawqiApi.Controllers
             try
             {
                 await _context.SaveChangesAsync();
+                
+                // Notify all clients about the updated property
+                await _hubContext.Clients.All.SendAsync("PropertyUpdated", property);
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -137,22 +157,40 @@ namespace TawqiApi.Controllers
                 return NotFound();
             }
 
-            // Auto-cleanup: Delete images from Supabase Storage
-            foreach (var imageUrl in property.Images)
-            {
-                try
-                {
-                    await _storageService.DeleteImageAsync(imageUrl);
-                }
-                catch (Exception ex)
-                {
-                    // If deletion fails, return 500 so the DB record is not orphaned
-                    return StatusCode(500, $"Failed to delete image from storage: {ex.Message}");
-                }
-            }
+            var imagesToDelete = property.Images.ToList(); // Copy the list
 
+            // 1. Delete from database first (Instant response)
             _context.Properties.Remove(property);
             await _context.SaveChangesAsync();
+
+            // 2. Notify all clients via SignalR (Real-time update)
+            await _hubContext.Clients.All.SendAsync("PropertyDeleted", id);
+
+            // 3. Queue the Supabase image deletion in the background
+            if (imagesToDelete.Any())
+            {
+                await _taskQueue.QueueBackgroundWorkItemAsync(async token =>
+                {
+                    using (var scope = _serviceScopeFactory.CreateScope())
+                    {
+                        var scopedStorageService = scope.ServiceProvider.GetRequiredService<SupabaseStorageService>();
+                        foreach (var imageUrl in imagesToDelete)
+                        {
+                            try
+                            {
+                                await scopedStorageService.DeleteImageAsync(imageUrl);
+                            }
+                            catch (Exception ex)
+                            {
+                                // The retry logic in QueuedHostedService will catch this and retry the entire work item
+                                // Actually, if we throw, it retries the whole foreach.
+                                // It's better to let the background service handle the retry.
+                                throw new Exception($"Failed to delete image {imageUrl}: {ex.Message}", ex);
+                            }
+                        }
+                    }
+                });
+            }
 
             return NoContent();
         }

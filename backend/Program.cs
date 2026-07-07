@@ -10,6 +10,14 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddSignalR();
+
+// Background queue configuration
+builder.Services.AddSingleton<TawqiApi.Services.IBackgroundTaskQueue>(ctx => 
+{
+    return new TawqiApi.Services.BackgroundTaskQueue(100);
+});
+builder.Services.AddHostedService<TawqiApi.Services.QueuedHostedService>();
 
 builder.Services.AddHttpClient<TawqiApi.Services.SupabaseStorageService>();
 
@@ -65,5 +73,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<TawqiApi.Hubs.PropertyHub>("/hubs/property");
 
 app.Run();
