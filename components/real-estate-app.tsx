@@ -67,7 +67,7 @@ export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
   const fetchProperties = async (isBackground = false) => {
     try {
       if (!isBackground) setIsLoading(true)
-      const res = await fetch('https://xqbxx1-001-site1.etempurl.com/api/properties')
+      const res = await fetch('/api/proxy/properties')
       if (res.ok) {
         const data = await res.json()
         setProperties(data)
@@ -113,7 +113,7 @@ export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
-      const res = await fetch('https://xqbxx1-001-site1.etempurl.com/api/auth/login', {
+      const res = await fetch('/api/proxy/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username: loginUsername.trim(), password: loginPassword })
@@ -152,7 +152,7 @@ export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
 
     // 2. Send DELETE request to server in the background
     try {
-      const res = await fetch(`https://xqbxx1-001-site1.etempurl.com/api/properties/${idToDelete}`, {
+      const res = await fetch(`/api/proxy/properties/${idToDelete}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -176,7 +176,7 @@ export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
     try {
       // Remove id before sending, let DB generate it
       const { id, ...propData } = newProp as any
-      const res = await fetch('https://xqbxx1-001-site1.etempurl.com/api/properties', {
+      const res = await fetch('/api/proxy/properties', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
