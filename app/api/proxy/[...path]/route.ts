@@ -39,8 +39,9 @@ async function proxyRequest(req: NextRequest) {
     targetPath = '/api/' + targetPath;
   }
   
-  // Use the exact IP of the SmarterASP server to bypass DNS
-  const url = `http://${BACKEND_IP}${targetPath}${req.nextUrl.search}`;
+  // Use HTTPS with the hostname - Vercel serverless functions can resolve the DNS
+  // even if end-user browsers cannot (different DNS infrastructure)
+  const url = `https://${BACKEND_HOST}${targetPath}${req.nextUrl.search}`;
   
   const headers = new Headers();
   // Copy only safe headers from the original request

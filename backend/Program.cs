@@ -65,7 +65,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+// HTTPS is handled by the reverse proxy (Vercel), so no need for HTTPS redirection here.
+// app.UseHttpsRedirection();
 
 app.UseCors("AllowAll");
 
