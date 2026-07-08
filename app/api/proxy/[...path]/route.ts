@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+const BACKEND_HOST = 'xqbxx1-001-site1.etempurl.com';
+const BACKEND_IP = '208.98.35.36';
+
 export async function GET(req: NextRequest) {
   return proxyRequest(req);
 }
@@ -21,23 +24,33 @@ export async function PATCH(req: NextRequest) {
 }
 
 async function proxyRequest(req: NextRequest) {
-  // Extract path parameters and construct the target URL
   const pathname = req.nextUrl.pathname;
-  // pathname is something like /api/proxy/properties
-  const targetPath = pathname.replace('/api/proxy', '/api');
+  
+  // Strip '/api/proxy' prefix to get the real backend path
+  // e.g. /api/proxy/properties => /api/properties
+  // e.g. /api/proxy/hubs/property/negotiate => /hubs/property/negotiate
+  let targetPath = pathname.replace('/api/proxy/', '');
+  
+  // Paths starting with 'hubs/' are SignalR endpoints and should NOT have /api/ prefix
+  // All other paths should get the /api/ prefix
+  if (targetPath.startsWith('hubs/')) {
+    targetPath = '/' + targetPath;
+  } else {
+    targetPath = '/api/' + targetPath;
+  }
   
   // Use the exact IP of the SmarterASP server to bypass DNS
-  // and force HTTP instead of HTTPS to avoid SSL issues with IP
-  const url = `http://208.98.35.36${targetPath}${req.nextUrl.search}`;
+  const url = `http://${BACKEND_IP}${targetPath}${req.nextUrl.search}`;
   
-  const headers = new Headers(req.headers);
+  const headers = new Headers();
+  // Copy only safe headers from the original request
+  const safeHeaders = ['content-type', 'authorization', 'accept', 'accept-language'];
+  for (const name of safeHeaders) {
+    const value = req.headers.get(name);
+    if (value) headers.set(name, value);
+  }
   // OVERRIDE the Host header so IIS knows which site to serve
-  headers.set('Host', 'xqbxx1-001-site1.etempurl.com');
-  
-  // Remove headers that might cause issues when proxying
-  headers.delete('connection');
-  headers.delete('referer');
-  headers.delete('origin');
+  headers.set('Host', BACKEND_HOST);
   
   const fetchOptions: RequestInit = {
     method: req.method,
@@ -54,11 +67,19 @@ async function proxyRequest(req: NextRequest) {
 
   try {
     const response = await fetch(url, fetchOptions);
-    const responseHeaders = new Headers(response.headers);
+    const responseHeaders = new Headers();
     
-    // Clean up proxy headers before returning to browser
-    responseHeaders.delete('content-encoding');
-    responseHeaders.delete('transfer-encoding');
+    // Copy only safe response headers
+    const safeResponseHeaders = ['content-type', 'cache-control', 'set-cookie'];
+    for (const name of safeResponseHeaders) {
+      const value = response.headers.get(name);
+      if (value) responseHeaders.set(name, value);
+    }
+    
+    // Add CORS headers for SignalR negotiate requests
+    responseHeaders.set('Access-Control-Allow-Origin', '*');
+    responseHeaders.set('Access-Control-Allow-Methods', 'GET, POST, DELETE, PUT, PATCH, OPTIONS');
+    responseHeaders.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     
     return new NextResponse(response.body, {
       status: response.status,
@@ -67,6 +88,9 @@ async function proxyRequest(req: NextRequest) {
     });
   } catch (error) {
     console.error('Proxy Error:', error);
-    return NextResponse.json({ error: 'Proxy failed', details: String(error) }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Backend server is temporarily unavailable. Please try again.' }, 
+      { status: 502 }
+    );
   }
 }

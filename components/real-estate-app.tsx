@@ -10,7 +10,7 @@ import { AddPropertyDialog } from '@/components/add-property-dialog'
 import { Modal } from '@/components/ui/modal'
 import { Button } from '@/components/ui/button'
 import { Field, TextInput } from '@/components/ui/field'
-import { HubConnectionBuilder, LogLevel } from '@microsoft/signalr'
+import { HubConnectionBuilder, HubConnectionState, LogLevel } from '@microsoft/signalr'
 import { STANDARD_SIZES, type Property } from '@/lib/real-estate'
 
 export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
@@ -23,7 +23,7 @@ export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
 
     // Initialize SignalR connection with Auto-Reconnect
     const connection = new HubConnectionBuilder()
-      .withUrl('https://xqbxx1-001-site1.etempurl.com/hubs/property')
+      .withUrl('/api/proxy/hubs/property')
       .withAutomaticReconnect([0, 2000, 5000, 10000, 30000]) // Retry immediately, then 2s, 5s, 10s, 30s...
       .configureLogging(LogLevel.Warning)
       .build()
@@ -44,7 +44,7 @@ export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
     connection.onreconnected(() => {
       // If the connection drops and reconnects, fetch full list to catch missed events
       console.log('SignalR reconnected. Refetching properties...')
-      fetchProperties()
+      fetchProperties(true)
     })
 
     connection.start().catch(err => console.error('SignalR connection error: ', err))
@@ -52,7 +52,7 @@ export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
     // Polling fallback: in case SignalR misses events (common on IIS/shared hosting),
     // re-sync with server every 30 seconds silently in the background.
     const pollInterval = setInterval(() => {
-      if (connection.state !== signalR.HubConnectionState.Connected) {
+      if (connection.state !== HubConnectionState.Connected) {
         console.log('SignalR not connected, polling properties...')
         fetchProperties(true)
       }
