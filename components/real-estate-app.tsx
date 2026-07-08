@@ -23,7 +23,7 @@ export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
 
     // Initialize SignalR connection with Auto-Reconnect
     const connection = new HubConnectionBuilder()
-      .withUrl('/api/proxy/hubs/property')
+      .withUrl('https://api.tawqielaqariya.com/hubs/property')
       .withAutomaticReconnect([0, 2000, 5000, 10000, 30000]) // Retry immediately, then 2s, 5s, 10s, 30s...
       .configureLogging(LogLevel.Warning)
       .build()
@@ -67,7 +67,7 @@ export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
   const fetchProperties = async (isBackground = false) => {
     try {
       if (!isBackground) setIsLoading(true)
-      const res = await fetch('/api/proxy/properties')
+      const res = await fetch('https://api.tawqielaqariya.com/api/properties')
       if (res.ok) {
         const data = await res.json()
         setProperties(data)
@@ -113,7 +113,7 @@ export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
-      const res = await fetch('/api/proxy/auth/login', {
+      const res = await fetch('https://api.tawqielaqariya.com/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username: loginUsername.trim(), password: loginPassword })
@@ -152,7 +152,7 @@ export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
 
     // 2. Send DELETE request to server in the background
     try {
-      const res = await fetch(`/api/proxy/properties/${idToDelete}`, {
+      const res = await fetch(`https://api.tawqielaqariya.com/api/properties/${idToDelete}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -176,7 +176,7 @@ export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
     try {
       // Remove id before sending, let DB generate it
       const { id, ...propData } = newProp as any
-      const res = await fetch('/api/proxy/properties', {
+      const res = await fetch('https://api.tawqielaqariya.com/api/properties', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
