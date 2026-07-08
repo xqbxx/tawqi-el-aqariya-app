@@ -52,9 +52,9 @@ export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
     // Polling fallback: in case SignalR misses events (common on IIS/shared hosting),
     // re-sync with server every 30 seconds silently in the background.
     const pollInterval = setInterval(() => {
-      if (connection.state !== 'Connected') {
-        // Only poll if SignalR is disconnected to avoid unnecessary requests
-        fetchProperties()
+      if (connection.state !== signalR.HubConnectionState.Connected) {
+        console.log('SignalR not connected, polling properties...')
+        fetchProperties(true)
       }
     }, 30000)
 
@@ -64,9 +64,9 @@ export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
     }
   }, [])
 
-  const fetchProperties = async () => {
+  const fetchProperties = async (isBackground = false) => {
     try {
-      setIsLoading(true)
+      if (!isBackground) setIsLoading(true)
       const res = await fetch('https://xqbxx1-001-site1.etempurl.com/api/properties')
       if (res.ok) {
         const data = await res.json()
@@ -75,7 +75,7 @@ export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
     } catch (err) {
       console.error('Failed to fetch properties', err)
     } finally {
-      setIsLoading(false)
+      if (!isBackground) setIsLoading(false)
     }
   }
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS)
