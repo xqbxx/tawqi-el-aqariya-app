@@ -132,48 +132,54 @@ export function PropertyDetail({
         )}
 
         {/* Actions */}
-        <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+        <div className="mt-6 flex flex-col gap-3 sm:flex-row w-full">
           {!isAdmin && (
-            <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="flex-1">
-              <Button
-                size="lg"
-                className="h-12 w-full bg-[#25D366] text-white hover:bg-[#25D366]/90"
-              >
-                <MessageCircle className="size-5" />
-                تواصل عبر واتساب
+            <div className="flex flex-1 flex-col sm:flex-row gap-3">
+              <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="flex-1">
+                <Button
+                  size="lg"
+                  className="h-14 w-full bg-[#25D366] text-white hover:bg-[#25D366]/90 text-base font-bold"
+                >
+                  <MessageCircle className="size-5 ml-2" />
+                  تواصل عبر واتساب
+                </Button>
+              </a>
+              {onContactRequest && (
+                <div className="flex-1">
+                  <Button
+                    size="lg"
+                    onClick={() => onContactRequest(property)}
+                    className="h-14 w-full text-base font-bold bg-primary hover:bg-primary/90 text-primary-foreground"
+                  >
+                    <PhoneCall className="size-5 ml-2" />
+                    اطلب تفاصيل أكثر
+                  </Button>
+                </div>
+              )}
+            </div>
+          )}
+          <div className={`flex flex-col sm:flex-row gap-3 ${isAdmin ? 'w-full' : 'sm:w-auto'}`}>
+            <a
+              href={mapsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-1 sm:w-auto"
+            >
+              <Button size="lg" variant="outline" className="h-14 w-full text-base font-semibold">
+                <MapIcon className="size-5 ml-2" />
+                عرض الموقع
               </Button>
             </a>
-          )}
-          {!isAdmin && onContactRequest && (
             <Button
               size="lg"
-              onClick={() => onContactRequest(property)}
-              className="h-12 flex-1"
+              variant="outline"
+              onClick={handleShare}
+              className="h-14 flex-1 sm:w-auto text-base font-semibold"
             >
-              <PhoneCall className="size-5" />
-              اطلب تفاصيل أكثر
+              <Share2 className="size-5 ml-2" />
+              مشاركة
             </Button>
-          )}
-          <a
-            href={mapsUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={isAdmin ? 'flex-1' : 'sm:w-auto'}
-          >
-            <Button size="lg" variant="outline" className="h-12 w-full">
-              <MapIcon className="size-5" />
-              عرض الموقع على الخريطة
-            </Button>
-          </a>
-          <Button
-            size="lg"
-            variant="outline"
-            onClick={handleShare}
-            className="h-12 sm:w-auto"
-          >
-            <Share2 className="size-5" />
-            مشاركة
-          </Button>
+          </div>
         </div>
 
       </div>
