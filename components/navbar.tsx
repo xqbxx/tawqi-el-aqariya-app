@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { LogIn, LogOut, Plus, Menu, X } from 'lucide-react'
+import { LogIn, LogOut, Plus, Menu, X, Bell } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 export function Navbar({
@@ -10,12 +10,16 @@ export function Navbar({
   onLoginClick,
   onLogout,
   onAddProperty,
+  onLeadsClick,
+  unreadLeadsCount = 0,
 }: {
   mode: 'public' | 'admin'
   isAdmin?: boolean
   onLoginClick?: () => void
   onLogout?: () => void
   onAddProperty?: () => void
+  onLeadsClick?: () => void
+  unreadLeadsCount?: number
 }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
@@ -48,6 +52,19 @@ export function Navbar({
                 >
                   <Plus className="size-4 ml-1.5" />
                   <span>إضافة عقار</span>
+                </Button>
+                <Button
+                  onClick={onLeadsClick}
+                  variant="outline"
+                  size="icon"
+                  className="relative border-primary-foreground/40 bg-transparent text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
+                >
+                  <Bell className="size-5" />
+                  {unreadLeadsCount > 0 && (
+                    <span className="absolute -top-1 -right-1 flex size-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">
+                      {unreadLeadsCount > 9 ? '9+' : unreadLeadsCount}
+                    </span>
+                  )}
                 </Button>
               )}
               {isAdmin ? (
@@ -103,6 +120,23 @@ export function Navbar({
               >
                 <Plus className="size-4 ml-2" />
                 إضافة عقار
+              </Button>
+              <Button
+                onClick={() => {
+                  onLeadsClick?.()
+                  setIsMenuOpen(false)
+                }}
+                variant="outline"
+                size="lg"
+                className="w-full justify-start border-primary-foreground/40 bg-transparent text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
+              >
+                <Bell className="size-4 ml-2" />
+                طلبات التواصل
+                {unreadLeadsCount > 0 && (
+                  <span className="mr-auto rounded-full bg-red-500 px-2 py-0.5 text-[10px] font-bold text-white">
+                    {unreadLeadsCount}
+                  </span>
+                )}
               </Button>
             )}
             {isAdmin ? (

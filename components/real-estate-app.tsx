@@ -1,12 +1,14 @@
 'use client'
 
-import { useMemo, useState, useEffect } from 'react'
+import { useMemo, useState, useEffect, useCallback } from 'react'
 import { SearchX, AlertTriangle, ShieldCheck } from 'lucide-react'
 import { Navbar } from '@/components/navbar'
 import { FilterBar, EMPTY_FILTERS, type Filters } from '@/components/filter-bar'
 import { PropertyCard } from '@/components/property-card'
 import { PropertyDetail } from '@/components/property-detail'
 import { AddPropertyDialog } from '@/components/add-property-dialog'
+import { ContactRequestDialog } from '@/components/contact-request-dialog'
+import { LeadsPanel, type Lead } from '@/components/leads-panel'
 import { Modal } from '@/components/ui/modal'
 import { Button } from '@/components/ui/button'
 import { Field, TextInput } from '@/components/ui/field'
@@ -85,6 +87,9 @@ export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
   const [loginPassword, setLoginPassword] = useState('')
   const [loginError, setLoginError] = useState('')
   const [propertyToDelete, setPropertyToDelete] = useState<Property | null>(null)
+  const [contactProperty, setContactProperty] = useState<Property | null>(null)
+  const [leads, setLeads] = useState<Lead[]>([])
+  const [showLeads, setShowLeads] = useState(false)
 
   const filtered = useMemo(() => {
     return properties.filter((p) => {
@@ -106,9 +111,58 @@ export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
   useEffect(() => {
     if (mode === 'admin') {
       const token = localStorage.getItem('adminToken')
-      if (token) setIsAdmin(true)
+      if (token) {
+        setIsAdmin(true)
+        fetchLeads(token)
+      }
     }
   }, [mode])
+
+  const fetchLeads = async (token?: string) => {
+    const t = token || localStorage.getItem('adminToken')
+    if (!t) return
+    try {
+      const res = await fetch('https://api.tawqielaqariya.com/api/leads', {
+        headers: { 'Authorization': `Bearer ${t}` }
+      })
+      if (res.ok) {
+        const data = await res.json()
+        setLeads(data)
+      }
+    } catch (err) {
+      console.error('Failed to fetch leads', err)
+    }
+  }
+
+  const handleMarkLeadAsRead = async (id: number) => {
+    const token = localStorage.getItem('adminToken')
+    try {
+      const res = await fetch(`https://api.tawqielaqariya.com/api/leads/${id}/read`, {
+        method: 'PUT',
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+      if (res.ok) {
+        setLeads(prev => prev.map(l => l.id === id ? { ...l, isRead: true } : l))
+      }
+    } catch (err) {
+      console.error('Failed to mark lead as read', err)
+    }
+  }
+
+  const handleDeleteLead = async (id: number) => {
+    const token = localStorage.getItem('adminToken')
+    try {
+      const res = await fetch(`https://api.tawqielaqariya.com/api/leads/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+      if (res.ok) {
+        setLeads(prev => prev.filter(l => l.id !== id))
+      }
+    } catch (err) {
+      console.error('Failed to delete lead', err)
+    }
+  }
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -124,6 +178,7 @@ export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
         localStorage.setItem('adminToken', data.token)
         setLoginError('')
         setIsAdmin(true)
+        fetchLeads(data.token)
       } else {
         setLoginError('اسم المستخدم أو كلمة المرور غير صحيحة')
       }
@@ -260,6 +315,8 @@ export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
         isAdmin={effectiveIsAdmin}
         onLogout={handleLogout}
         onAddProperty={() => setShowAdd(true)}
+        onLeadsClick={() => { fetchLeads(); setShowLeads(true) }}
+        unreadLeadsCount={leads.filter(l => !l.isRead).length}
       />
 
       {/* Hero */}
@@ -326,7 +383,26 @@ export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
       </footer>
 
       {/* Dialogs */}
-      <PropertyDetail property={selected} isAdmin={effectiveIsAdmin} onClose={() => setSelected(null)} />
+      <PropertyDetail
+        property={selected}
+        isAdmin={effectiveIsAdmin}
+        onClose={() => setSelected(null)}
+        onContactRequest={(p) => { setSelected(null); setContactProperty(p) }}
+      />
+      <ContactRequestDialog
+        open={!!contactProperty}
+        property={contactProperty}
+        onClose={() => setContactProperty(null)}
+      />
+      {mode === 'admin' && (
+        <LeadsPanel
+          open={showLeads}
+          leads={leads}
+          onClose={() => setShowLeads(false)}
+          onMarkAsRead={handleMarkLeadAsRead}
+          onDelete={handleDeleteLead}
+        />
+      )}
       {mode === 'admin' && (
         <AddPropertyDialog
           open={showAdd}

@@ -13,6 +13,8 @@ import {
   Phone,
   Shield,
   Lock,
+  Share2,
+  PhoneCall,
 } from 'lucide-react'
 import { Modal } from '@/components/ui/modal'
 import { Button } from '@/components/ui/button'
@@ -31,12 +33,36 @@ export function PropertyDetail({
   property,
   isAdmin,
   onClose,
+  onContactRequest,
 }: {
   property: Property | null
   isAdmin: boolean
   onClose: () => void
+  onContactRequest?: (property: Property) => void
 }) {
   if (!property) return null
+
+  const handleShare = async () => {
+    const dealText = property.dealType === 'sale' ? 'للبيع' : 'للإيجار'
+    const shareText = `${property.title} - ${dealText} - ${formatPrice(property.price)} ريال | توقيع العقارية`
+    const shareUrl = typeof window !== 'undefined' ? window.location.origin : ''
+
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: property.title, text: shareText, url: shareUrl })
+      } catch {
+        // User cancelled share — do nothing
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(`${shareText}\n${shareUrl}`)
+        alert('تم نسخ رابط العقار!')
+      } catch {
+        // Fallback for older browsers
+        alert('لم يتمكن من النسخ. انسخ الرابط يدوياً.')
+      }
+    }
+  }
 
   const dealAr = property.dealType === 'sale' ? 'للبيع' : 'للإيجار'
   const mapsUrl = property.googleMapsUrl
@@ -118,6 +144,16 @@ export function PropertyDetail({
               </Button>
             </a>
           )}
+          {!isAdmin && onContactRequest && (
+            <Button
+              size="lg"
+              onClick={() => onContactRequest(property)}
+              className="h-12 flex-1"
+            >
+              <PhoneCall className="size-5" />
+              اطلب تفاصيل أكثر
+            </Button>
+          )}
           <a
             href={mapsUrl}
             target="_blank"
@@ -129,6 +165,15 @@ export function PropertyDetail({
               عرض الموقع على الخريطة
             </Button>
           </a>
+          <Button
+            size="lg"
+            variant="outline"
+            onClick={handleShare}
+            className="h-12 sm:w-auto"
+          >
+            <Share2 className="size-5" />
+            مشاركة
+          </Button>
         </div>
 
       </div>
