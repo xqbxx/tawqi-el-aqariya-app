@@ -45,27 +45,29 @@ export function Navbar({
           <>
             <div className="hidden md:flex items-center gap-2">
               {isAdmin && (
-                <Button
-                  onClick={onAddProperty}
-                  size="lg"
-                  className="bg-primary-foreground text-primary hover:bg-primary-foreground/90"
-                >
-                  <Plus className="size-4 ml-1.5" />
-                  <span>إضافة عقار</span>
-                </Button>
-                <Button
-                  onClick={onLeadsClick}
-                  variant="outline"
-                  size="icon"
-                  className="relative border-primary-foreground/40 bg-transparent text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
-                >
-                  <Bell className="size-5" />
-                  {unreadLeadsCount > 0 && (
-                    <span className="absolute -top-1 -right-1 flex size-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">
-                      {unreadLeadsCount > 9 ? '9+' : unreadLeadsCount}
-                    </span>
-                  )}
-                </Button>
+                <>
+                  <Button
+                    onClick={onAddProperty}
+                    size="lg"
+                    className="bg-primary-foreground text-primary hover:bg-primary-foreground/90"
+                  >
+                    <Plus className="size-4 ml-1.5" />
+                    <span>إضافة عقار</span>
+                  </Button>
+                  <Button
+                    onClick={onLeadsClick}
+                    variant="outline"
+                    size="icon"
+                    className="relative border-primary-foreground/40 bg-transparent text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
+                  >
+                    <Bell className="size-5" />
+                    {unreadLeadsCount > 0 && (
+                      <span className="absolute -top-1 -right-1 flex size-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">
+                        {unreadLeadsCount > 9 ? '9+' : unreadLeadsCount}
+                      </span>
+                    )}
+                  </Button>
+                </>
               )}
               {isAdmin ? (
                 <Button
@@ -110,34 +112,36 @@ export function Navbar({
         <div className="border-t border-primary-foreground/10 bg-primary px-4 py-4 shadow-inner md:hidden">
           <div className="flex flex-col gap-3">
             {isAdmin && (
-              <Button
-                onClick={() => {
-                  onAddProperty?.()
-                  setIsMenuOpen(false)
-                }}
-                size="lg"
-                className="w-full justify-start bg-primary-foreground text-primary hover:bg-primary-foreground/90"
-              >
-                <Plus className="size-4 ml-2" />
-                إضافة عقار
-              </Button>
-              <Button
-                onClick={() => {
-                  onLeadsClick?.()
-                  setIsMenuOpen(false)
-                }}
-                variant="outline"
-                size="lg"
-                className="w-full justify-start border-primary-foreground/40 bg-transparent text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
-              >
-                <Bell className="size-4 ml-2" />
-                طلبات التواصل
-                {unreadLeadsCount > 0 && (
-                  <span className="mr-auto rounded-full bg-red-500 px-2 py-0.5 text-[10px] font-bold text-white">
-                    {unreadLeadsCount}
-                  </span>
-                )}
-              </Button>
+              <>
+                <Button
+                  onClick={() => {
+                    onAddProperty?.()
+                    setIsMenuOpen(false)
+                  }}
+                  size="lg"
+                  className="w-full justify-start bg-primary-foreground text-primary hover:bg-primary-foreground/90"
+                >
+                  <Plus className="size-4 ml-2" />
+                  إضافة عقار
+                </Button>
+                <Button
+                  onClick={() => {
+                    onLeadsClick?.()
+                    setIsMenuOpen(false)
+                  }}
+                  variant="outline"
+                  size="lg"
+                  className="w-full justify-start border-primary-foreground/40 bg-transparent text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
+                >
+                  <Bell className="size-4 ml-2" />
+                  طلبات التواصل
+                  {unreadLeadsCount > 0 && (
+                    <span className="mr-auto rounded-full bg-red-500 px-2 py-0.5 text-[10px] font-bold text-white">
+                      {unreadLeadsCount}
+                    </span>
+                  )}
+                </Button>
+              </>
             )}
             {isAdmin ? (
               <Button
