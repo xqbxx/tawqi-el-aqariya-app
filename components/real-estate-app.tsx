@@ -19,6 +19,7 @@ export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
   const [isAdmin, setIsAdmin] = useState(false)
   const [properties, setProperties] = useState<Property[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [fetchError, setFetchError] = useState(false)
 
   useEffect(() => {
     fetchProperties()
@@ -69,13 +70,17 @@ export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
   const fetchProperties = async (isBackground = false) => {
     try {
       if (!isBackground) setIsLoading(true)
+      setFetchError(false)
       const res = await fetch('https://api.tawqielaqariya.com/api/properties')
       if (res.ok) {
         const data = await res.json()
         setProperties(data)
+      } else {
+        setFetchError(true)
       }
     } catch (err) {
       console.error('Failed to fetch properties', err)
+      setFetchError(true)
     } finally {
       if (!isBackground) setIsLoading(false)
     }
@@ -343,6 +348,15 @@ export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
             {isLoading ? (
               <div className="flex justify-center items-center py-20">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+              </div>
+            ) : fetchError ? (
+              <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-card py-20 px-4 text-center">
+                <AlertTriangle className="size-12 text-destructive mb-4" />
+                <h3 className="text-lg font-bold text-foreground">فشل الاتصال بالخادم</h3>
+                <p className="mt-1 mb-6 text-sm text-muted-foreground">
+                  يبدو أن الخادم في وضع السكون أو يوجد مشكلة في الاتصال. يرجى المحاولة مرة أخرى.
+                </p>
+                <Button onClick={() => fetchProperties()} variant="outline">إعادة المحاولة</Button>
               </div>
             ) : filtered.length === 0 ? (
               <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-card py-20 text-center">
