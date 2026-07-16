@@ -52,7 +52,31 @@ namespace TawqiApi.Controllers
                 query = query.Where(p => p.Category == category);
             }
 
-            return await query.ToListAsync();
+            // Exclude Images from list query to avoid transferring large base64 data.
+            // Images are loaded separately via GET /api/Properties/{id}.
+            var properties = await query.Select(p => new Property
+            {
+                Id = p.Id,
+                Title = p.Title,
+                Description = p.Description,
+                Price = p.Price,
+                Region = p.Region,
+                CustomRegion = p.CustomRegion,
+                Category = p.Category,
+                DealType = p.DealType,
+                Size = p.Size,
+                IsCustomSize = p.IsCustomSize,
+                StreetWidth = p.StreetWidth,
+                Direction = p.Direction,
+                PlotNumber = p.PlotNumber,
+                GoogleMapsUrl = p.GoogleMapsUrl,
+                OwnerName = p.OwnerName,
+                OwnerPhone = p.OwnerPhone,
+                GuardPhone = p.GuardPhone,
+                Images = new List<string>()
+            }).ToListAsync();
+
+            return properties;
         }
 
         // GET: api/Properties/5

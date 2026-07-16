@@ -87,6 +87,7 @@ export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
   }
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS)
   const [selected, setSelected] = useState<Property | null>(null)
+  const [isLoadingDetail, setIsLoadingDetail] = useState(false)
   const [showAdd, setShowAdd] = useState(false)
   const [loginUsername, setLoginUsername] = useState('')
   const [loginPassword, setLoginPassword] = useState('')
@@ -95,6 +96,30 @@ export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
   const [contactProperty, setContactProperty] = useState<Property | null>(null)
   const [leads, setLeads] = useState<Lead[]>([])
   const [showLeads, setShowLeads] = useState(false)
+
+  const selectProperty = useCallback(async (property: Property) => {
+    // If images are already loaded (e.g. from SignalR update), show directly
+    if (property.images && property.images.length > 0) {
+      setSelected(property)
+      return
+    }
+    // Otherwise fetch full details including images
+    setIsLoadingDetail(true)
+    try {
+      const res = await fetch(`https://api.tawqielaqariya.com/api/properties/${property.id}`)
+      if (res.ok) {
+        const fullProperty = await res.json()
+        setSelected(fullProperty)
+      } else {
+        // Fallback: show without images
+        setSelected(property)
+      }
+    } catch {
+      setSelected(property)
+    } finally {
+      setIsLoadingDetail(false)
+    }
+  }, [])
 
   const filtered = useMemo(() => {
     return properties.filter((p) => {
@@ -373,7 +398,7 @@ export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
                     key={p.id}
                     property={p}
                     isAdmin={effectiveIsAdmin}
-                    onClick={() => setSelected(p)}
+                    onClick={() => selectProperty(p)}
                     onDelete={() => setPropertyToDelete(p)}
                   />
                 ))}
@@ -395,6 +420,16 @@ export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
           </p>
         </div>
       </footer>
+
+      {/* Loading overlay for property detail fetch */}
+      {isLoadingDetail && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-background/80 backdrop-blur-sm">
+          <div className="flex flex-col items-center gap-3">
+            <div className="size-10 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+            <p className="text-sm font-medium text-muted-foreground">جاري تحميل التفاصيل...</p>
+          </div>
+        </div>
+      )}
 
       {/* Dialogs */}
       <PropertyDetail
