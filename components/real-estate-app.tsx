@@ -15,11 +15,22 @@ import { Field, TextInput } from '@/components/ui/field'
 import { HubConnectionBuilder, HubConnectionState, LogLevel } from '@microsoft/signalr'
 import { STANDARD_SIZES, type Property } from '@/lib/real-estate'
 
+// Helper to check if a JWT token is expired
+function isTokenExpired(token: string): boolean {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]))
+    return payload.exp * 1000 < Date.now()
+  } catch {
+    return true
+  }
+}
+
 export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
   const [isAdmin, setIsAdmin] = useState(false)
   const [properties, setProperties] = useState<Property[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [fetchError, setFetchError] = useState(false)
+  const [deleteError, setDeleteError] = useState('')
 
   useEffect(() => {
     fetchProperties()
@@ -138,12 +149,24 @@ export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
     })
   }, [properties, filters])
 
+  // Auto-logout helper for 401 responses
+  const handleAuthError = useCallback(() => {
+    localStorage.removeItem('adminToken')
+    setIsAdmin(false)
+    setDeleteError('انتهت صلاحية الجلسة. يرجى تسجيل الدخول مرة أخرى.')
+  }, [])
+
   useEffect(() => {
     if (mode === 'admin') {
       const token = localStorage.getItem('adminToken')
       if (token) {
-        setIsAdmin(true)
-        fetchLeads(token)
+        if (isTokenExpired(token)) {
+          // Token expired, clean up
+          localStorage.removeItem('adminToken')
+        } else {
+          setIsAdmin(true)
+          fetchLeads(token)
+        }
       }
     }
   }, [mode])
@@ -228,8 +251,16 @@ export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
     const idToDelete = propertyToDelete.id
     const deletedProperty = propertyToDelete
 
+    // Check token before attempting
+    if (!token || isTokenExpired(token)) {
+      setPropertyToDelete(null)
+      handleAuthError()
+      return
+    }
+
     // 1. OPTIMISTIC UPDATE: Remove from UI immediately before server response
     setPropertyToDelete(null)
+    setDeleteError('')
     setProperties((prev) => prev.filter((p) => p.id !== idToDelete))
     if (selected?.id === idToDelete) {
       setSelected(null)
@@ -245,14 +276,19 @@ export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
       })
       if (!res.ok) {
         // Server failed: rollback the optimistic update
-        console.error('Failed to delete property on server, rolling back...')
         setProperties((prev) => [deletedProperty, ...prev])
+        if (res.status === 401) {
+          handleAuthError()
+        } else {
+          setDeleteError('فشل حذف العقار. يرجى المحاولة مرة أخرى.')
+        }
       }
       // On success: SignalR will notify other connected devices automatically
     } catch (err) {
       // Network error: rollback the optimistic update
       console.error('Delete request failed, rolling back...', err)
       setProperties((prev) => [deletedProperty, ...prev])
+      setDeleteError('حدث خطأ في الاتصال. يرجى المحاولة مرة أخرى.')
     }
   }
 
@@ -370,6 +406,13 @@ export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
           </div>
 
           <div>
+            {deleteError && (
+              <div className="mb-4 flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+                <AlertTriangle className="size-4 shrink-0" />
+                <span>{deleteError}</span>
+                <button onClick={() => setDeleteError('')} className="mr-auto text-destructive/60 hover:text-destructive">✕</button>
+              </div>
+            )}
             {isLoading ? (
               <div className="flex justify-center items-center py-20">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
