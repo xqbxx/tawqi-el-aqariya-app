@@ -82,7 +82,9 @@ export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
     try {
       if (!isBackground) setIsLoading(true)
       setFetchError(false)
-      const res = await fetch('https://api.tawqielaqariya.com/api/properties')
+      const res = await fetch('https://api.tawqielaqariya.com/api/properties', {
+        cache: 'no-store'
+      })
       if (res.ok) {
         const data = await res.json()
         setProperties(data)
@@ -117,7 +119,9 @@ export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
     // Otherwise fetch full details including images
     setIsLoadingDetail(true)
     try {
-      const res = await fetch(`https://api.tawqielaqariya.com/api/properties/${property.id}`)
+      const res = await fetch(`https://api.tawqielaqariya.com/api/properties/${property.id}`, {
+        cache: 'no-store'
+      })
       if (res.ok) {
         const fullProperty = await res.json()
         setSelected(fullProperty)
@@ -176,7 +180,8 @@ export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
     if (!t) return
     try {
       const res = await fetch('https://api.tawqielaqariya.com/api/leads', {
-        headers: { 'Authorization': `Bearer ${t}` }
+        headers: { 'Authorization': `Bearer ${t}` },
+        cache: 'no-store'
       })
       if (res.ok) {
         const data = await res.json()
@@ -275,12 +280,16 @@ export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
         }
       })
       if (!res.ok) {
-        // Server failed: rollback the optimistic update
-        setProperties((prev) => [deletedProperty, ...prev])
-        if (res.status === 401) {
-          handleAuthError()
+        if (res.status === 404) {
+          // Already deleted on the server, treat as success (do nothing, optimistic update stands)
         } else {
-          setDeleteError('فشل حذف العقار. يرجى المحاولة مرة أخرى.')
+          // Server failed: rollback the optimistic update
+          setProperties((prev) => [deletedProperty, ...prev])
+          if (res.status === 401) {
+            handleAuthError()
+          } else {
+            setDeleteError('فشل حذف العقار. يرجى المحاولة مرة أخرى.')
+          }
         }
       }
       // On success: SignalR will notify other connected devices automatically
