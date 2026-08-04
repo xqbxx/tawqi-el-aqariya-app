@@ -1,5 +1,7 @@
 'use client'
 
+import Image from 'next/image'
+
 import { MapPin, Maximize, Lock, Trash2 } from 'lucide-react'
 import {
   categoryLabel,
@@ -23,25 +25,19 @@ export function PropertyCard({
   const dealAr = property.dealType === 'sale' ? 'للبيع' : 'للإيجار'
 
   return (
-    <article
-      onClick={onClick}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault()
-          onClick()
-        }
-      }}
-      tabIndex={0}
-      role="button"
-      className="group flex cursor-pointer flex-col overflow-hidden rounded-2xl border border-border bg-card text-right shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
-    >
+    <article className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card text-right shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg focus-within:ring-2 focus-within:ring-primary/40">
+      <button
+        type="button"
+        onClick={onClick}
+        aria-label={`عرض تفاصيل ${property.title}`}
+        className="absolute inset-0 z-0 h-full w-full opacity-0 focus:outline-none"
+      />
       <div className="relative aspect-[16/11] w-full overflow-hidden bg-muted">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+        <Image
           src={property.images[0] || '/placeholder.svg'}
           alt={property.title}
-          loading="lazy"
-          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+          fill
+          className="object-cover transition-transform duration-300 group-hover:scale-105"
         />
         <span className="absolute right-3 top-3 rounded-full bg-primary px-3 py-1 text-xs font-bold text-primary-foreground shadow">
           {dealAr}
@@ -62,7 +58,7 @@ export function PropertyCard({
               e.stopPropagation()
               onDelete()
             }}
-            className="absolute bottom-3 right-3 z-10 flex items-center justify-center rounded-full bg-destructive/90 p-1.5 text-destructive-foreground shadow transition-colors hover:bg-destructive"
+            className="absolute bottom-3 right-3 z-10 flex items-center justify-center rounded-full bg-destructive/90 p-1.5 text-destructive-foreground shadow transition-colors hover:bg-destructive focus:outline-none focus:ring-2 focus:ring-destructive focus:ring-offset-2"
             aria-label="حذف"
           >
             <Trash2 className="size-4" />

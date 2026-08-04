@@ -45,13 +45,22 @@ namespace TawqiApi.Controllers
         // GET: api/Leads (admin only)
         [HttpGet]
         [Authorize]
-        public async Task<ActionResult<IEnumerable<Lead>>> GetLeads()
+        public async Task<ActionResult> GetLeads([FromQuery] int page = 1, [FromQuery] int limit = 20)
         {
-            var leads = await _context.Leads
+            var query = _context.Leads.AsQueryable();
+            var totalCount = await query.CountAsync();
+            var leads = await query
                 .OrderByDescending(l => l.CreatedAt)
+                .Skip((page - 1) * limit)
+                .Take(limit)
                 .ToListAsync();
 
-            return Ok(leads);
+            return Ok(new {
+                total = totalCount,
+                page = page,
+                limit = limit,
+                data = leads
+            });
         }
 
         // GET: api/Leads/unread-count (admin only)

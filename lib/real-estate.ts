@@ -99,4 +99,5 @@ export function formatSize(size: number): string {
 // Removed mock data
 
 // Placeholder public contact WhatsApp number (fallback)
-export const DEFAULT_WHATSAPP = '966552245433'
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.tawqielaqariya.com'
+export const DEFAULT_WHATSAPP = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '966552245433'

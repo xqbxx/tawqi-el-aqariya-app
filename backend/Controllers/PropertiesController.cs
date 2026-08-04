@@ -36,9 +36,11 @@ namespace TawqiApi.Controllers
 
         // GET: api/Properties
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Property>>> GetProperties(
+        public async Task<ActionResult> GetProperties(
             [FromQuery] string? region, 
-            [FromQuery] string? category)
+            [FromQuery] string? category,
+            [FromQuery] int page = 1,
+            [FromQuery] int limit = 20)
         {
             var query = _context.Properties.AsQueryable();
 
@@ -52,31 +54,19 @@ namespace TawqiApi.Controllers
                 query = query.Where(p => p.Category == category);
             }
 
-            // Exclude Images from list query to avoid transferring large base64 data.
-            // Images are loaded separately via GET /api/Properties/{id}.
-            var properties = await query.Select(p => new Property
-            {
-                Id = p.Id,
-                Title = p.Title,
-                Description = p.Description,
-                Price = p.Price,
-                Region = p.Region,
-                CustomRegion = p.CustomRegion,
-                Category = p.Category,
-                DealType = p.DealType,
-                Size = p.Size,
-                IsCustomSize = p.IsCustomSize,
-                StreetWidth = p.StreetWidth,
-                Direction = p.Direction,
-                PlotNumber = p.PlotNumber,
-                GoogleMapsUrl = p.GoogleMapsUrl,
-                OwnerName = p.OwnerName,
-                OwnerPhone = p.OwnerPhone,
-                GuardPhone = p.GuardPhone,
-                Images = new List<string>()
-            }).ToListAsync();
+            var totalCount = await query.CountAsync();
+            var items = await query
+                .OrderByDescending(p => p.Id)
+                .Skip((page - 1) * limit)
+                .Take(limit)
+                .ToListAsync();
 
-            return properties;
+            return Ok(new {
+                total = totalCount,
+                page = page,
+                limit = limit,
+                data = items
+            });
         }
 
         // GET: api/Properties/5
@@ -96,18 +86,19 @@ namespace TawqiApi.Controllers
         // POST: api/Properties
         [Authorize]
         [HttpPost]
-        public async Task<ActionResult<Property>> PostProperty(Property property)
+        public async Task<ActionResult<Property>> PostProperty([FromForm] CreatePropertyDto dto)
         {
-            // Process images
             var publicUrls = new List<string>();
-            foreach (var image in property.Images)
+            
+            if (dto.Images != null && dto.Images.Count > 0)
             {
-                if (image.StartsWith("data:image/webp;base64,"))
+                foreach (var file in dto.Images)
                 {
                     try
                     {
-                        var base64Data = image.Substring("data:image/webp;base64,".Length);
-                        var imageBytes = Convert.FromBase64String(base64Data);
+                        using var ms = new MemoryStream();
+                        await file.CopyToAsync(ms);
+                        var imageBytes = ms.ToArray();
                         var fileName = $"{Guid.NewGuid()}.webp";
                         
                         var publicUrl = await _storageService.UploadImageAsync(imageBytes, fileName);
@@ -115,17 +106,31 @@ namespace TawqiApi.Controllers
                     }
                     catch (Exception ex)
                     {
-                        // Log error and return 500 if upload fails
                         return StatusCode(500, $"Failed to upload image: {ex.Message}");
                     }
                 }
-                else
-                {
-                    publicUrls.Add(image);
-                }
             }
-            
-            property.Images = publicUrls;
+
+            var property = new Property
+            {
+                Title = dto.Title,
+                Description = dto.Description,
+                Price = dto.Price,
+                Region = dto.Region,
+                CustomRegion = dto.CustomRegion,
+                Category = dto.Category,
+                DealType = dto.DealType,
+                Size = dto.Size,
+                IsCustomSize = dto.IsCustomSize,
+                StreetWidth = dto.StreetWidth,
+                Direction = dto.Direction,
+                PlotNumber = dto.PlotNumber,
+                GoogleMapsUrl = dto.GoogleMapsUrl,
+                OwnerName = dto.OwnerName,
+                OwnerPhone = dto.OwnerPhone,
+                GuardPhone = dto.GuardPhone,
+                Images = publicUrls.Count > 0 ? publicUrls : new List<string> { "/placeholder.svg?height=400&width=600" }
+            };
 
             _context.Properties.Add(property);
             await _context.SaveChangesAsync();

@@ -58,9 +58,11 @@ async function run() {
                 // If connection dropped, reconnect once and retry
                 if (e.message.includes("ECONNRESET") || e.message.includes("FIN") || e.message.includes("530")) {
                     console.log("   🔄 Reconnecting...");
+                    // Wait a few seconds for IIS to release file locks
+                    console.log("⏳ Waiting 10 seconds for IIS to release files...");
+                    await new Promise(r => setTimeout(r, 10000));
                     try {
                         client.close();
-                        await new Promise(r => setTimeout(r, 3000));
                         await client.access(FTP_CONFIG);
                         await client.cd(REMOTE_ROOT);
                         console.log("   ✅ Reconnected. Retrying file...");

@@ -1,5 +1,7 @@
 'use client'
 
+import Image from 'next/image'
+
 import { useState } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -16,11 +18,11 @@ export function ImageCarousel({ images, alt }: { images: string[]; alt: string }
   return (
     <div className="flex flex-col gap-2.5">
       <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl bg-muted">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+        <Image
           src={safeImages[index] || '/placeholder.svg'}
           alt={`${alt} - صورة ${index + 1}`}
-          className="h-full w-full object-cover"
+          fill
+          className="object-cover"
         />
         {safeImages.length > 1 && (
           <>
@@ -42,11 +44,14 @@ export function ImageCarousel({ images, alt }: { images: string[]; alt: string }
             </button>
             <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-1.5">
               {safeImages.map((_, i) => (
-                <span
+                <button
                   key={i}
+                  type="button"
+                  onClick={() => setIndex(i)}
+                  aria-label={`عرض الصورة ${i + 1}`}
                   className={cn(
-                    'size-1.5 rounded-full transition-all',
-                    i === index ? 'w-4 bg-primary' : 'bg-background/70',
+                    'h-1.5 transition-all rounded-full',
+                    i === index ? 'w-4 bg-primary' : 'w-1.5 bg-background/70 hover:bg-background',
                   )}
                 />
               ))}
@@ -67,8 +72,7 @@ export function ImageCarousel({ images, alt }: { images: string[]; alt: string }
                 i === index ? 'border-primary' : 'border-transparent opacity-70',
               )}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={src || '/placeholder.svg'} alt="" className="h-full w-full object-cover" />
+              <Image src={src || '/placeholder.svg'} alt="" fill className="object-cover" />
             </button>
           ))}
         </div>

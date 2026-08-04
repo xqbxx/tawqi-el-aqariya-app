@@ -11,6 +11,7 @@ namespace TawqiApi.Data
 
         public DbSet<Admin> Admins { get; set; }
         public DbSet<Property> Properties { get; set; }
+        public DbSet<Lead> Leads { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

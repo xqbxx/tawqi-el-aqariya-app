@@ -5,7 +5,7 @@ import { PhoneCall, User, Send, CheckCircle2, X } from 'lucide-react'
 import { Modal } from '@/components/ui/modal'
 import { Button } from '@/components/ui/button'
 import { Field, TextInput } from '@/components/ui/field'
-import type { Property } from '@/lib/real-estate'
+import { API_BASE_URL, type Property } from '@/lib/real-estate'
 
 export function ContactRequestDialog({
   open,
@@ -53,7 +53,7 @@ export function ContactRequestDialog({
     setIsSubmitting(true)
 
     try {
-      const res = await fetch('https://api.tawqielaqariya.com/api/leads', {
+      const res = await fetch(`${API_BASE_URL}/api/leads`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

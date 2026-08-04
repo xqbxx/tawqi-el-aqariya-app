@@ -12,8 +12,8 @@ import { LeadsPanel, type Lead } from '@/components/leads-panel'
 import { Modal } from '@/components/ui/modal'
 import { Button } from '@/components/ui/button'
 import { Field, TextInput } from '@/components/ui/field'
-import { HubConnectionBuilder, HubConnectionState, LogLevel } from '@microsoft/signalr'
-import { STANDARD_SIZES, type Property } from '@/lib/real-estate'
+import { HubConnectionBuilder, HubConnectionState, LogLevel, type HubConnection } from '@microsoft/signalr'
+import { STANDARD_SIZES, type Property, API_BASE_URL } from '@/lib/real-estate'
 
 // Helper to check if a JWT token is expired
 function isTokenExpired(token: string): boolean {
@@ -29,6 +29,8 @@ export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
   const [isAdmin, setIsAdmin] = useState(false)
   const [properties, setProperties] = useState<Property[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [hasMoreProperties, setHasMoreProperties] = useState(false)
+  const [page, setPage] = useState(1)
   const [fetchError, setFetchError] = useState(false)
   const [deleteError, setDeleteError] = useState('')
 
@@ -37,7 +39,7 @@ export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
 
     // Initialize SignalR connection with Auto-Reconnect
     const connection = new HubConnectionBuilder()
-      .withUrl('https://api.tawqielaqariya.com/hubs/property')
+      .withUrl(`${API_BASE_URL}/hubs/property`)
       .withAutomaticReconnect([0, 2000, 5000, 10000, 30000]) // Retry immediately, then 2s, 5s, 10s, 30s...
       .configureLogging(LogLevel.Warning)
       .build()
@@ -78,16 +80,29 @@ export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
     }
   }, [])
 
-  const fetchProperties = async (isBackground = false) => {
+  const fetchProperties = async (isBackground = false, pageNum = 1) => {
     try {
-      if (!isBackground) setIsLoading(true)
+      if (!isBackground && pageNum === 1) setIsLoading(true)
       setFetchError(false)
-      const res = await fetch('https://api.tawqielaqariya.com/api/properties', {
+      const res = await fetch(`${API_BASE_URL}/api/properties?page=${pageNum}&limit=12`, {
         cache: 'no-store'
       })
       if (res.ok) {
-        const data = await res.json()
-        setProperties(data)
+        const responseData = await res.json()
+        const items = responseData.data || []
+        
+        if (pageNum === 1) {
+          setProperties(items)
+        } else {
+          setProperties(prev => {
+            // Filter out duplicates just in case
+            const existingIds = new Set(prev.map(p => p.id))
+            const newItems = items.filter((p: Property) => !existingIds.has(p.id))
+            return [...prev, ...newItems]
+          })
+        }
+        
+        setHasMoreProperties(items.length === 12)
       } else {
         setFetchError(true)
       }
@@ -95,7 +110,7 @@ export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
       console.error('Failed to fetch properties', err)
       setFetchError(true)
     } finally {
-      if (!isBackground) setIsLoading(false)
+      if (!isBackground && pageNum === 1) setIsLoading(false)
     }
   }
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS)
@@ -119,7 +134,7 @@ export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
     // Otherwise fetch full details including images
     setIsLoadingDetail(true)
     try {
-      const res = await fetch(`https://api.tawqielaqariya.com/api/properties/${property.id}`, {
+      const res = await fetch(`${API_BASE_URL}/api/properties/${property.id}`, {
         cache: 'no-store'
       })
       if (res.ok) {
@@ -179,13 +194,13 @@ export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
     const t = token || localStorage.getItem('adminToken')
     if (!t) return
     try {
-      const res = await fetch('https://api.tawqielaqariya.com/api/leads', {
+      const res = await fetch(`${API_BASE_URL}/api/leads?page=1&limit=100`, {
         headers: { 'Authorization': `Bearer ${t}` },
         cache: 'no-store'
       })
       if (res.ok) {
-        const data = await res.json()
-        setLeads(data)
+        const responseData = await res.json()
+        setLeads(responseData.data || [])
       }
     } catch (err) {
       console.error('Failed to fetch leads', err)
@@ -195,7 +210,7 @@ export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
   const handleMarkLeadAsRead = async (id: number) => {
     const token = localStorage.getItem('adminToken')
     try {
-      const res = await fetch(`https://api.tawqielaqariya.com/api/leads/${id}/read`, {
+      const res = await fetch(`${API_BASE_URL}/api/leads/${id}/read`, {
         method: 'PUT',
         headers: { 'Authorization': `Bearer ${token}` }
       })
@@ -210,7 +225,7 @@ export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
   const handleDeleteLead = async (id: number) => {
     const token = localStorage.getItem('adminToken')
     try {
-      const res = await fetch(`https://api.tawqielaqariya.com/api/leads/${id}`, {
+      const res = await fetch(`${API_BASE_URL}/api/leads/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       })
@@ -225,7 +240,7 @@ export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
-      const res = await fetch('https://api.tawqielaqariya.com/api/auth/login', {
+      const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username: loginUsername.trim(), password: loginPassword })
@@ -273,7 +288,7 @@ export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
 
     // 2. Send DELETE request to server in the background
     try {
-      const res = await fetch(`https://api.tawqielaqariya.com/api/properties/${idToDelete}`, {
+      const res = await fetch(`${API_BASE_URL}/api/properties/${idToDelete}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -304,15 +319,45 @@ export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
   const handleAddProperty = async (newProp: Property) => {
     const token = localStorage.getItem('adminToken')
     try {
-      // Remove id before sending, let DB generate it
-      const { id, ...propData } = newProp as any
-      const res = await fetch('https://api.tawqielaqariya.com/api/properties', {
+      const formData = new FormData()
+      formData.append('title', newProp.title)
+      formData.append('description', newProp.description)
+      formData.append('price', String(newProp.price))
+      formData.append('region', newProp.region)
+      if (newProp.customRegion) formData.append('customRegion', newProp.customRegion)
+      formData.append('category', newProp.category)
+      formData.append('dealType', newProp.dealType)
+      formData.append('size', String(newProp.size))
+      formData.append('isCustomSize', String(newProp.isCustomSize))
+      formData.append('streetWidth', String(newProp.streetWidth))
+      formData.append('direction', newProp.direction)
+      formData.append('plotNumber', newProp.plotNumber)
+      formData.append('googleMapsUrl', newProp.googleMapsUrl)
+      formData.append('ownerName', newProp.ownerName)
+      if (newProp.ownerPhone) formData.append('ownerPhone', newProp.ownerPhone)
+      if (newProp.guardPhone) formData.append('guardPhone', newProp.guardPhone)
+
+      if (newProp.images && newProp.images.length > 0) {
+        for (let i = 0; i < newProp.images.length; i++) {
+          const img = newProp.images[i]
+          if (typeof img === 'string' && img.startsWith('data:image/')) {
+            // Convert base64 to Blob
+            const response = await fetch(img)
+            const blob = await response.blob()
+            formData.append('images', blob, `image_${i}.webp`)
+          } else {
+            // We can't really send plain URLs in the same field if the backend expects IFormFile
+            // For now, new properties will always have base64 from the Add dialog
+          }
+        }
+      }
+
+      const res = await fetch(`${API_BASE_URL}/api/properties`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify(propData)
+        body: formData
       })
       if (res.ok) {
         const created = await res.json()
@@ -444,17 +489,34 @@ export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-                {filtered.map((p) => (
-                  <PropertyCard
-                    key={p.id}
-                    property={p}
-                    isAdmin={effectiveIsAdmin}
-                    onClick={() => selectProperty(p)}
-                    onDelete={() => setPropertyToDelete(p)}
-                  />
-                ))}
-              </div>
+              <>
+                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+                  {filtered.map((p) => (
+                    <PropertyCard
+                      key={p.id}
+                      property={p}
+                      isAdmin={effectiveIsAdmin}
+                      onClick={() => selectProperty(p)}
+                      onDelete={() => setPropertyToDelete(p)}
+                    />
+                  ))}
+                </div>
+                {hasMoreProperties && !filters.region && !filters.category && !filters.dealType && !filters.size && (
+                  <div className="flex justify-center mt-6">
+                    <Button 
+                      variant="outline" 
+                      onClick={() => {
+                        const nextPage = page + 1
+                        setPage(nextPage)
+                        fetchProperties(false, nextPage)
+                      }}
+                      disabled={isLoading}
+                    >
+                      {isLoading ? 'جاري التحميل...' : 'عرض المزيد'}
+                    </Button>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>
