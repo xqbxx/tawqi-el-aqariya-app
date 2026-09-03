@@ -30,10 +30,10 @@ export function Navbar({
         <div className="flex items-center gap-4">
           <div className="relative size-12 sm:size-14 overflow-hidden">
             <Image
-              src="/logo.png"
+              src="/logo-madi.png"
               alt="شعار ماضي الثقة العقارية"
               fill
-              className="object-contain"
+              className="object-contain drop-shadow-md scale-125 origin-right"
             />
           </div>
           <div className="leading-tight">
