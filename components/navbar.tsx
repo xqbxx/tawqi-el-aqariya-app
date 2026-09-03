@@ -27,16 +27,10 @@ export function Navbar({
     <header className="sticky top-0 z-40 bg-primary text-primary-foreground shadow-md">
       <div className="mx-auto flex h-24 max-w-7xl items-center justify-between gap-3 px-4 sm:h-28 sm:px-6">
         <div className="flex items-center gap-3">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/logo.png"
-            alt="شعار ماضي الثقة العقارية"
-            className="h-20 w-auto sm:h-24"
-          />
           <div className="leading-tight">
-            <p className="text-base font-bold sm:text-lg">ماضي الثقة العقارية</p>
-            <p className="hidden text-xs text-primary-foreground/70 sm:block">
-              Madi Al-Thiqa Real Estate
+            <h1 className="text-xl font-extrabold text-gold sm:text-2xl">ماضي الثقة العقارية</h1>
+            <p className="hidden text-xs text-primary-foreground/70 sm:block mt-0.5 tracking-wider">
+              MADI AL-THIQA REAL ESTATE
             </p>
           </div>
         </div>

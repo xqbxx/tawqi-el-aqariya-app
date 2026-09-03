@@ -71,17 +71,17 @@ export function PropertyCard({
 
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm text-muted-foreground">
           <span className="flex items-center gap-1">
-            <MapPin className="size-4 text-primary" />
+            <MapPin className="size-4 text-accent" />
             {regionLabel(property)}
           </span>
           <span className="flex items-center gap-1">
-            <Maximize className="size-4 text-primary" />
+            <Maximize className="size-4 text-accent" />
             {formatSize(property.size)} م
           </span>
         </div>
 
         <div className="mt-auto flex items-baseline gap-1.5 border-t border-border pt-3">
-          <span className="text-xl font-extrabold text-primary">
+          <span className="text-xl font-extrabold text-accent">
             {formatPrice(property.price)}
           </span>
           <span className="text-sm font-medium text-muted-foreground">
