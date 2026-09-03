@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import Image from 'next/image'
 import { LogIn, LogOut, Plus, Menu, X, Bell } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
@@ -27,15 +26,7 @@ export function Navbar({
   return (
     <header className="sticky top-0 z-40 bg-card/95 backdrop-blur-md border-b border-border shadow-sm">
       <div className="mx-auto flex h-24 max-w-7xl items-center justify-between gap-3 px-4 sm:h-28 sm:px-6">
-        <div className="flex items-center gap-4">
-          <div className="relative size-12 sm:size-14 overflow-hidden">
-            <Image
-              src="/logo-madi.png"
-              alt="شعار ماضي الثقة العقارية"
-              fill
-              className="object-contain drop-shadow-md scale-125 origin-right"
-            />
-          </div>
+        <div className="flex items-center gap-3">
           <div className="leading-tight">
             <h1 className="text-xl font-extrabold text-gold sm:text-2xl">ماضي الثقة العقارية</h1>
             <p className="hidden text-xs text-primary-foreground/70 sm:block mt-0.5 tracking-wider">
