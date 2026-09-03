@@ -27,16 +27,16 @@ export function Navbar({
   return (
     <header className="sticky top-0 z-40 bg-card/95 backdrop-blur-md border-b border-border shadow-sm">
       <div className="mx-auto flex h-24 max-w-7xl items-center justify-between gap-3 px-4 sm:h-28 sm:px-6">
-        <div className="flex items-center gap-2 sm:gap-4">
-          <div className="relative w-24 h-24 sm:w-32 sm:h-32 -my-6 sm:-my-8 flex items-center justify-center pointer-events-none">
+        <div className="flex items-center gap-3 sm:gap-4">
+          <div className="relative w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0">
             <Image
-              src="/logo-clean.png"
+              src="/logo-aligned.png"
               alt="شعار ماضي الثقة العقارية"
               fill
-              className="object-contain drop-shadow-sm scale-[1.5] origin-center"
+              className="object-contain drop-shadow-sm"
             />
           </div>
-          <div className="leading-tight pt-1">
+          <div className="leading-tight">
             <h1 className="text-xl font-extrabold text-gold sm:text-2xl tracking-tight">ماضي الثقة العقارية</h1>
             <p className="hidden text-xs text-primary-foreground/70 sm:block mt-0.5 tracking-wider">
               MADI AL-THIQA REAL ESTATE
