@@ -51,38 +51,37 @@
 
 @layer base {
   :root {
-    color-scheme: dark;
-    /* Very dark navy background */
-    --background: oklch(0.18 0.01 260); 
-    /* Bright white/off-white text for excellent contrast */
-    --foreground: oklch(0.98 0.005 80); 
+    color-scheme: light;
+    /* Clean white background */
+    --background: oklch(1 0 0); 
+    /* Deep navy text for contrast */
+    --foreground: oklch(0.18 0.01 260); 
     
-    /* Slightly lighter dark cards */
-    --card: oklch(0.23 0.01 260);
-    --card-foreground: oklch(0.98 0.005 80);
+    /* White cards */
+    --card: oklch(1 0 0);
+    --card-foreground: oklch(0.18 0.01 260);
     
-    --popover: oklch(0.23 0.01 260);
-    --popover-foreground: oklch(0.98 0.005 80);
+    --popover: oklch(1 0 0);
+    --popover-foreground: oklch(0.18 0.01 260);
     
     /* Primary buttons/nav: Dark Navy */
     --primary: oklch(0.18 0.01 260);
-    --primary-foreground: #d4af37;
+    --primary-foreground: #ffffff;
     
-    /* Secondary/Muted: Lighter gray-blue for subtle backgrounds */
-    --secondary: oklch(0.30 0.01 260);
-    --secondary-foreground: oklch(0.90 0.01 260);
-    --muted: oklch(0.25 0.01 260);
-    /* Very readable light gray for muted text */
-    --muted-foreground: oklch(0.80 0.01 260);
+    /* Secondary/Muted: Light gray */
+    --secondary: oklch(0.96 0 0);
+    --secondary-foreground: oklch(0.25 0.01 260);
+    --muted: oklch(0.96 0 0);
+    --muted-foreground: oklch(0.45 0.01 260);
     
     /* Accent: Gold */
     --accent: #d4af37;
-    --accent-foreground: #1c1c2e;
+    --accent-foreground: #ffffff;
     
     --destructive: oklch(0.577 0.245 27.325);
-    /* Subtle borders */
-    --border: oklch(0.30 0.01 260);
-    --input: oklch(0.30 0.01 260);
+    /* Subtle light borders */
+    --border: oklch(0.92 0 0);
+    --input: oklch(0.92 0 0);
     --ring: #d4af37;
     
     --radius: 0.75rem;
