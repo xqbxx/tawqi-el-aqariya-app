@@ -28,12 +28,12 @@ export function Navbar({
     <header className="sticky top-0 z-40 bg-card/95 backdrop-blur-md border-b border-border shadow-sm">
       <div className="mx-auto flex h-24 max-w-7xl items-center justify-between gap-3 px-4 sm:h-28 sm:px-6">
         <div className="flex items-center gap-4">
-          <div className="relative size-12 sm:size-16 overflow-hidden">
+          <div className="relative w-20 h-16 sm:w-28 sm:h-20 overflow-hidden">
             <Image
-              src="/logo-final.png"
+              src="/logo-clean.png"
               alt="شعار ماضي الثقة العقارية"
               fill
-              className="object-contain drop-shadow-sm scale-[1.3] origin-right"
+              className="object-contain drop-shadow-sm scale-[1.35] origin-right"
             />
           </div>
           <div className="leading-tight">

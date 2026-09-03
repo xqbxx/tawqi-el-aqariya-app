@@ -74,15 +74,15 @@
     --muted: #F4F5F7;
     --muted-foreground: #6C757D;
     
-    /* Accent: Official Gold #B89358 */
-    --accent: #B89358;
+    /* Accent: Official Gold to match logo #B0927D */
+    --accent: #B0927D;
     --accent-foreground: #FFFFFF;
     
     --destructive: oklch(0.577 0.245 27.325);
     /* Subtle borders #EAECEF */
     --border: #EAECEF;
     --input: #EAECEF;
-    --ring: #B89358;
+    --ring: #B0927D;
     
     --radius: 0.75rem; /* 12px */
   }
@@ -100,9 +100,9 @@
     @apply bg-background text-foreground;
   }
   .gold-gradient {
-    background: linear-gradient(135deg, #d4af37 0%, #f5e6b8 50%, #d4af37 100%);
+    background: linear-gradient(135deg, #8C7864 0%, #D2BEAA 50%, #8C7864 100%);
   }
   .text-gold {
-    color: #d4af37;
+    color: #B0927D;
   }
 }
