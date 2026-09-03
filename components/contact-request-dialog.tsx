@@ -24,7 +24,7 @@ export function ContactRequestDialog({
 
   const resetForm = () => {
     setName('')
-    setPhone('+966')
+    setPhone('')
     setError('')
     setIsSuccess(false)
     setIsSubmitting(false)
@@ -44,9 +44,8 @@ export function ContactRequestDialog({
       return
     }
 
-    const phoneDigits = phone.replace(/\D/g, '')
-    if (phoneDigits.length !== 12) {
-      setError('الرجاء إدخال رقم جوال صحيح (مثال: +966512345678)')
+    if (phone.length !== 9 || !phone.startsWith('5')) {
+      setError('الرجاء إدخال رقم جوال صحيح يتكون من 9 أرقام ويبدأ بـ 5')
       return
     }
 
@@ -58,7 +57,7 @@ export function ContactRequestDialog({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: name.trim(),
-          phone: phone.trim(),
+          phone: `+966${phone}`,
           propertyId: property?.id ?? 0,
           propertyTitle: property?.title ?? '',
         }),
@@ -123,19 +122,27 @@ export function ContactRequestDialog({
                 </Field>
 
                 <Field label="رقم الجوال" htmlFor="lead-phone">
-                  <TextInput
-                    id="lead-phone"
-                    type="tel"
-                    dir="ltr"
-                    value={phone}
-                    onChange={(e) => {
-                      let val = e.target.value
-                      if (!val.startsWith('+966')) val = '+966'
-                      setPhone(val)
-                    }}
-                    placeholder="+966512345678"
-                    autoComplete="tel"
-                  />
+                  <div className="flex w-full" dir="ltr">
+                    <div className="flex items-center justify-center rounded-l-xl border border-r-0 border-border bg-muted px-4 py-2 text-sm font-bold text-muted-foreground">
+                      +966
+                    </div>
+                    <input
+                      id="lead-phone"
+                      type="tel"
+                      className="flex-1 rounded-r-xl border border-border bg-card px-4 py-3 text-sm font-medium text-foreground shadow-sm outline-none transition-colors focus:border-primary focus:ring-1 focus:ring-primary placeholder:text-muted-foreground/50"
+                      value={phone}
+                      onChange={(e) => {
+                        let val = e.target.value.replace(/\D/g, '')
+                        // Only allow up to 9 digits
+                        if (val.length > 9) val = val.slice(0, 9)
+                        // If it's the first digit, ensure it's a 5
+                        if (val.length > 0 && val[0] !== '5') val = '5'
+                        setPhone(val)
+                      }}
+                      placeholder="5XXXXXXXX"
+                      autoComplete="tel-local"
+                    />
+                  </div>
                 </Field>
 
                 {error && (
