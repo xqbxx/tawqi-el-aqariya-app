@@ -116,10 +116,16 @@ export function getNeighborhoodValuesForCity(city: string): string[] {
 // Categories (fixed options)
 export const CATEGORIES: OptionItem[] = [
   { value: 'lands', ar: 'اراضي', en: 'Lands' },
+  { value: 'villas', ar: 'فلل', en: 'Villas' },
+  { value: 'apartments', ar: 'شقق', en: 'Apartments' },
+  { value: 'duplex', ar: 'دوبلكس', en: 'Duplex' },
+  { value: 'buildings', ar: 'عماير', en: 'Buildings' },
+  { value: 'commercial', ar: 'تجاري', en: 'Commercial' },
+  { value: 'farms', ar: 'مزارع', en: 'Farms' },
   { value: 'yards', ar: 'احواش', en: 'Yards' },
   { value: 'chalets', ar: 'شاليهات', en: 'Chalets' },
-  { value: 'rooms', ar: 'غرف', en: 'Rooms' },
   { value: 'rest-houses', ar: 'استراحات', en: 'Rest houses' },
+  { value: 'rooms', ar: 'غرف', en: 'Rooms' },
 ]
 
 export const DEAL_TYPES: { value: DealType; ar: string; en: string }[] = [
