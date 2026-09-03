@@ -52,39 +52,39 @@
 @layer base {
   :root {
     color-scheme: light;
-    /* Clean white background */
-    --background: oklch(1 0 0); 
-    /* Deep navy text for contrast */
-    --foreground: oklch(0.18 0.01 260); 
+    /* Main Background: Off-white #F8F9FA */
+    --background: #F8F9FA; 
+    /* Main Text: Dark Charcoal #1E242B */
+    --foreground: #1E242B; 
     
-    /* White cards */
-    --card: oklch(1 0 0);
-    --card-foreground: oklch(0.18 0.01 260);
+    /* Cards: Pure White #FFFFFF */
+    --card: #FFFFFF;
+    --card-foreground: #1E242B;
     
-    --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.18 0.01 260);
+    --popover: #FFFFFF;
+    --popover-foreground: #1E242B;
     
-    /* Primary buttons/nav: Dark Navy */
-    --primary: oklch(0.18 0.01 260);
-    --primary-foreground: #ffffff;
+    /* Primary buttons/nav */
+    --primary: #1E242B;
+    --primary-foreground: #FFFFFF;
     
-    /* Secondary/Muted: Light gray */
-    --secondary: oklch(0.96 0 0);
-    --secondary-foreground: oklch(0.25 0.01 260);
-    --muted: oklch(0.96 0 0);
-    --muted-foreground: oklch(0.45 0.01 260);
+    /* Secondary/Muted: Gray #6C757D */
+    --secondary: #F8F9FA;
+    --secondary-foreground: #6C757D;
+    --muted: #F4F5F7;
+    --muted-foreground: #6C757D;
     
-    /* Accent: Gold */
-    --accent: #d4af37;
-    --accent-foreground: #ffffff;
+    /* Accent: Official Gold #B89358 */
+    --accent: #B89358;
+    --accent-foreground: #FFFFFF;
     
     --destructive: oklch(0.577 0.245 27.325);
-    /* Subtle light borders */
-    --border: oklch(0.92 0 0);
-    --input: oklch(0.92 0 0);
-    --ring: #d4af37;
+    /* Subtle borders #EAECEF */
+    --border: #EAECEF;
+    --input: #EAECEF;
+    --ring: #B89358;
     
-    --radius: 0.75rem;
+    --radius: 0.75rem; /* 12px */
   }
 }
 

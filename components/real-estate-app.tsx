@@ -458,12 +458,11 @@ export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
 
       {/* Main content */}
       <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[18rem_1fr]">
-          <div className="lg:sticky lg:top-20 lg:self-start">
-            <FilterBar filters={filters} onChange={setFilters} resultCount={filtered.length} />
-          </div>
+        <div className="mb-8">
+          <FilterBar filters={filters} onChange={setFilters} resultCount={filtered.length} />
+        </div>
 
-          <div>
+        <div className="w-full">
             {deleteError && (
               <div className="mb-4 flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
                 <AlertTriangle className="size-4 shrink-0" />
@@ -522,7 +521,6 @@ export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
                 )}
               </>
             )}
-          </div>
         </div>
       </main>
 

@@ -25,7 +25,7 @@ export function PropertyCard({
   const dealAr = property.dealType === 'sale' ? 'للبيع' : 'للإيجار'
 
   return (
-    <article className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card text-right shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg focus-within:ring-2 focus-within:ring-primary/40">
+    <article className="group relative flex flex-col overflow-hidden rounded-[12px] border border-border bg-card text-right shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_8px_30px_rgba(0,0,0,0.12)] focus-within:ring-2 focus-within:ring-primary/40">
       <button
         type="button"
         onClick={onClick}
@@ -39,10 +39,10 @@ export function PropertyCard({
           fill
           className="object-cover transition-transform duration-300 group-hover:scale-105"
         />
-        <span className="absolute right-3 top-3 rounded-full bg-primary px-3 py-1 text-xs font-bold text-primary-foreground shadow">
+        <span className="absolute right-3 top-3 rounded-full bg-white border border-accent px-3 py-1 text-xs font-bold text-accent shadow-sm">
           {dealAr}
         </span>
-        <span className="absolute left-3 top-3 rounded-full bg-background/90 px-3 py-1 text-xs font-semibold text-foreground shadow">
+        <span className="absolute left-3 top-3 rounded-full bg-white border border-border px-3 py-1 text-xs font-semibold text-foreground shadow-sm">
           {categoryLabel(property)}
         </span>
         {isAdmin && (

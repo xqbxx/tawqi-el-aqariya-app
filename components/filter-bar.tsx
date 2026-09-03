@@ -45,29 +45,35 @@ export function FilterBar({
   const neighborhoods = getNeighborhoodsByCity(filters.city)
 
   return (
-    <aside className="rounded-2xl border border-border bg-card p-5 shadow-sm">
-      <div className="mb-4 flex items-center justify-between">
+    <div className="rounded-2xl border border-border bg-card p-5 shadow-[0_4px_20px_rgba(0,0,0,0.05)]">
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-2">
           <SlidersHorizontal className="size-5 text-accent" />
           <h2 className="text-lg font-bold text-foreground">تصفية النتائج</h2>
         </div>
-        {hasActive ? (
-          <button
-            type="button"
-            onClick={() => onChange(EMPTY_FILTERS)}
-            className="flex items-center gap-1 text-xs font-medium text-accent hover:underline"
-          >
-            <X className="size-3.5" />
-            مسح الكل
-          </button>
-        ) : null}
+        
+        <div className="flex items-center gap-4">
+          <div className="rounded-xl bg-primary/5 border border-primary/10 px-3 py-1.5 text-sm font-semibold text-foreground">
+            {formatSize(resultCount)} عقار متطابق
+          </div>
+          {hasActive ? (
+            <button
+              type="button"
+              onClick={() => onChange(EMPTY_FILTERS)}
+              className="flex items-center gap-1 text-xs font-medium text-destructive hover:underline"
+            >
+              <X className="size-3.5" />
+              مسح الكل
+            </button>
+          ) : null}
+        </div>
       </div>
 
-      <div className="flex flex-col gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5 items-start">
         {/* Deal type toggle */}
-        <div>
-          <p className="mb-1.5 text-sm font-semibold text-foreground">نوع العرض</p>
-          <div className="grid grid-cols-3 gap-1 rounded-xl bg-muted p-1">
+        <div className="flex flex-col gap-1.5">
+          <p className="text-sm font-semibold text-foreground px-1">نوع العرض</p>
+          <div className="grid grid-cols-3 gap-1 rounded-xl bg-muted p-1 h-[42px]">
             <ToggleButton
               active={filters.dealType === ''}
               onClick={() => set({ dealType: '' })}
@@ -92,6 +98,7 @@ export function FilterBar({
             id="filter-city"
             value={filters.city}
             onChange={(e) => set({ city: e.target.value, region: '' })}
+            className="h-[42px]"
           >
             <option value="">كل المدن</option>
             {CITIES.map((c) => (
@@ -108,6 +115,7 @@ export function FilterBar({
             id="filter-region"
             value={filters.region}
             onChange={(e) => set({ region: e.target.value })}
+            className="h-[42px]"
           >
             <option value="">كل الأحياء</option>
             {neighborhoods.map((r) => (
@@ -125,6 +133,7 @@ export function FilterBar({
             id="filter-category"
             value={filters.category}
             onChange={(e) => set({ category: e.target.value })}
+            className="h-[42px]"
           >
             <option value="">كل التصنيفات</option>
             {CATEGORIES.map((c) => (
@@ -141,6 +150,7 @@ export function FilterBar({
             id="filter-size"
             value={filters.size}
             onChange={(e) => set({ size: e.target.value })}
+            className="h-[42px]"
           >
             <option value="">كل المساحات</option>
             {STANDARD_SIZES.map((s) => (
@@ -148,15 +158,11 @@ export function FilterBar({
                 {formatSize(s)} م
               </option>
             ))}
-            <option value="other">أخرى (مساحات مخصصة)</option>
+            <option value="other">أخرى</option>
           </Select>
         </Field>
-
-        <div className="mt-1 rounded-xl bg-primary/5 border border-primary/10 px-3 py-2.5 text-center text-sm font-semibold text-foreground">
-          {formatSize(resultCount)} عقار متطابق
-        </div>
       </div>
-    </aside>
+    </div>
   )
 }
 
