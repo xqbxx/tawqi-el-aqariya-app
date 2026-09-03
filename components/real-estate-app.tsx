@@ -444,12 +444,12 @@ export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
       />
 
       {/* Hero */}
-      <section className="border-b border-border bg-primary">
+      <section className="border-b border-border bg-card/50">
         <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14">
-          <h1 className="text-2xl font-extrabold text-primary-foreground text-balance sm:text-3xl">
+          <h1 className="text-2xl font-extrabold text-foreground text-balance sm:text-3xl">
             اعثر على عقارك المثالي مع <span className="text-gold">ماضي الثقة</span> العقارية
           </h1>
-          <p className="mt-3 max-w-2xl leading-relaxed text-primary-foreground/70">
+          <p className="mt-3 max-w-2xl leading-relaxed text-muted-foreground">
             تصفّح مجموعة مختارة من الأراضي، الشاليهات، الاستراحات، الأحواش والغرف
             في أفضل أحياء الرياض والخرج.
           </p>

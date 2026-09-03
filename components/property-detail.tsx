@@ -25,6 +25,7 @@ import {
   formatPrice,
   formatSize,
   regionLabel,
+  cityLabel,
   DEFAULT_WHATSAPP,
   type Property,
 } from '@/lib/real-estate'
@@ -65,7 +66,9 @@ export function PropertyDetail({
   }
 
   const dealAr = property.dealType === 'sale' ? 'للبيع' : 'للإيجار'
-  const mapsUrl = property.googleMapsUrl
+  const mapsUrl = isAdmin
+    ? property.googleMapsUrl
+    : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`حي ${regionLabel(property)} ${cityLabel(property)}`)}`
   const whatsappMessage = encodeURIComponent(
     `مرحباً، أنا مهتم بالعقار: ${property.title} (رقم ${property.plotNumber}) المعروض ${dealAr} في ${regionLabel(
       property,

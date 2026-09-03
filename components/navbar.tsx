@@ -24,7 +24,7 @@ export function Navbar({
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   return (
-    <header className="sticky top-0 z-40 bg-primary text-primary-foreground shadow-md">
+    <header className="sticky top-0 z-40 bg-card/95 backdrop-blur-md border-b border-border shadow-sm">
       <div className="mx-auto flex h-24 max-w-7xl items-center justify-between gap-3 px-4 sm:h-28 sm:px-6">
         <div className="flex items-center gap-3">
           <div className="leading-tight">
