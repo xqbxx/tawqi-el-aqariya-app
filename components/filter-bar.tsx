@@ -1,6 +1,7 @@
 'use client'
 
-import { SlidersHorizontal, X } from 'lucide-react'
+import { useState } from 'react'
+import { SlidersHorizontal, X, ChevronDown, ChevronUp } from 'lucide-react'
 import { Field, Select } from '@/components/ui/field'
 import { cn } from '@/lib/utils'
 import {
@@ -43,14 +44,22 @@ export function FilterBar({
     filters.city || filters.region || filters.dealType || filters.category || filters.size
 
   const neighborhoods = getNeighborhoodsByCity(filters.city)
+  const [isExpanded, setIsExpanded] = useState(false)
 
   return (
-    <div className="rounded-2xl border border-border bg-card p-5 shadow-[0_4px_20px_rgba(0,0,0,0.05)]">
-      <div className="mb-5 flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-center gap-2">
+    <div className="rounded-2xl border border-border bg-card p-4 sm:p-5 shadow-[0_4px_20px_rgba(0,0,0,0.05)]">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <button
+          type="button"
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="flex items-center gap-2 flex-1 lg:cursor-default lg:pointer-events-none"
+        >
           <SlidersHorizontal className="size-5 text-accent" />
           <h2 className="text-lg font-bold text-foreground">تصفية النتائج</h2>
-        </div>
+          <div className="lg:hidden text-muted-foreground mr-1">
+            {isExpanded ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />}
+          </div>
+        </button>
         
         <div className="flex items-center gap-4">
           <div className="rounded-xl bg-primary/5 border border-primary/10 px-3 py-1.5 text-sm font-semibold text-foreground">
@@ -69,7 +78,7 @@ export function FilterBar({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5 items-start">
+      <div className={cn("gap-4 sm:grid-cols-2 lg:grid-cols-5 items-start", isExpanded ? "grid mt-5" : "hidden lg:grid lg:mt-5")}>
         {/* Deal type toggle */}
         <div className="flex flex-col gap-1.5">
           <p className="text-sm font-semibold text-foreground px-1">نوع العرض</p>
