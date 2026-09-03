@@ -13,7 +13,7 @@ import { Modal } from '@/components/ui/modal'
 import { Button } from '@/components/ui/button'
 import { Field, TextInput } from '@/components/ui/field'
 import { HubConnectionBuilder, HubConnectionState, LogLevel, type HubConnection } from '@microsoft/signalr'
-import { STANDARD_SIZES, type Property, API_BASE_URL } from '@/lib/real-estate'
+import { STANDARD_SIZES, getNeighborhoodValuesForCity, type Property, API_BASE_URL } from '@/lib/real-estate'
 
 // Helper to check if a JWT token is expired
 function isTokenExpired(token: string): boolean {
@@ -153,12 +153,16 @@ export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
 
   const filtered = useMemo(() => {
     return properties.filter((p) => {
+      // City filter: show only properties in neighborhoods belonging to selected city
+      if (filters.city && !filters.region) {
+        const cityNeighborhoods = getNeighborhoodValuesForCity(filters.city)
+        if (!cityNeighborhoods.includes(p.region)) return false
+      }
       if (filters.region && p.region !== filters.region) return false
       if (filters.dealType && p.dealType !== filters.dealType) return false
       if (filters.category && p.category !== filters.category) return false
       if (filters.size) {
         if (filters.size === 'other') {
-          // custom / non-standard sizes
           if (!p.isCustomSize && STANDARD_SIZES.includes(p.size)) return false
         } else if (p.size !== Number(filters.size)) {
           return false
@@ -440,14 +444,14 @@ export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
       />
 
       {/* Hero */}
-      <section className="border-b border-border bg-card">
-        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10">
-          <h1 className="text-2xl font-extrabold text-foreground text-balance sm:text-3xl">
-            اعثر على عقارك المثالي مع توقيع العقارية
+      <section className="border-b border-border bg-primary">
+        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14">
+          <h1 className="text-2xl font-extrabold text-primary-foreground text-balance sm:text-3xl">
+            اعثر على عقارك المثالي مع <span className="text-gold">ماضي الثقة</span> العقارية
           </h1>
-          <p className="mt-2 max-w-2xl leading-relaxed text-muted-foreground">
-            تصفّح مجموعة مختارة من الأراضي، الشاليهات، الاستراحات، الأحواش والغرف في أفضل المناطق.
-            استخدم أدوات التصفية للوصول إلى ما يناسبك بسهولة.
+          <p className="mt-3 max-w-2xl leading-relaxed text-primary-foreground/70">
+            تصفّح مجموعة مختارة من الأراضي، الشاليهات، الاستراحات، الأحواش والغرف
+            في أفضل أحياء الرياض والخرج.
           </p>
         </div>
       </section>
@@ -501,7 +505,7 @@ export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
                     />
                   ))}
                 </div>
-                {hasMoreProperties && !filters.region && !filters.category && !filters.dealType && !filters.size && (
+                {hasMoreProperties && !filters.city && !filters.region && !filters.category && !filters.dealType && !filters.size && (
                   <div className="flex justify-center mt-6">
                     <Button 
                       variant="outline" 
@@ -522,15 +526,16 @@ export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
         </div>
       </main>
 
-      <footer className="border-t border-border bg-card">
-        <div className="mx-auto flex max-w-7xl flex-col items-center gap-2 px-4 py-6 text-center sm:px-6">
-          <div className="flex items-center justify-center rounded-xl bg-primary px-4 py-2">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo.png" alt="شعار توقيع العقارية" className="h-10 w-auto" />
-          </div>
-          <p className="mt-1 text-sm font-semibold text-foreground">توقيع العقارية</p>
-          <p className="text-xs text-muted-foreground">
-            © {new Date().getFullYear()} جميع الحقوق محفوظة
+      <footer className="border-t border-border bg-primary">
+        <div className="mx-auto flex max-w-7xl flex-col items-center gap-3 px-4 py-8 text-center sm:px-6">
+          <p className="text-lg font-bold text-primary-foreground">
+            <span className="text-gold">ماضي الثقة</span> العقارية
+          </p>
+          <p className="text-sm text-primary-foreground/60">
+            الرياض · الخرج
+          </p>
+          <p className="text-xs text-primary-foreground/40">
+            © {new Date().getFullYear()} جميع الحقوق محفوظة — ماضي الثقة العقارية
           </p>
         </div>
       </footer>

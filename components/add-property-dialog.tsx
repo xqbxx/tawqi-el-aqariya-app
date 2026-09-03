@@ -7,11 +7,13 @@ import { Button } from '@/components/ui/button'
 import { Field, Select, TextArea, TextInput } from '@/components/ui/field'
 import {
   CATEGORIES,
+  CITIES,
   DEAL_TYPES,
   DIRECTIONS,
   REGIONS,
   STANDARD_SIZES,
   formatSize,
+  getNeighborhoodsByCity,
   type DealType,
   type Property,
 } from '@/lib/real-estate'
@@ -31,6 +33,7 @@ export function AddPropertyDialog({
   const [title, setTitle] = useState('')
   const [category, setCategory] = useState('lands')
   const [region, setRegion] = useState('al-afiqah')
+  const [city, setCity] = useState('kharj')
   const [customRegion, setCustomRegion] = useState('')
   const [dealType, setDealType] = useState<DealType>('sale')
   const [price, setPrice] = useState('')
@@ -140,6 +143,7 @@ export function AddPropertyDialog({
     setTitle('')
     setCategory('lands')
     setRegion('al-afiqah')
+    setCity('kharj')
     setCustomRegion('')
     setDealType('sale')
     setPrice('')
@@ -259,9 +263,19 @@ export function AddPropertyDialog({
             </Select>
           </Field>
 
-          <Field label="المنطقة" htmlFor="p-region">
+          <Field label="المدينة" htmlFor="p-city">
+            <Select id="p-city" value={city} onChange={(e) => { setCity(e.target.value); setRegion(getNeighborhoodsByCity(e.target.value)[0]?.value || 'other') }}>
+              {CITIES.map((c) => (
+                <option key={c.value} value={c.value}>
+                  {c.ar}
+                </option>
+              ))}
+            </Select>
+          </Field>
+
+          <Field label="الحي" htmlFor="p-region">
             <Select id="p-region" value={region} onChange={(e) => setRegion(e.target.value)}>
-              {REGIONS.map((r) => (
+              {getNeighborhoodsByCity(city).map((r) => (
                 <option key={r.value} value={r.value}>
                   {r.ar}
                 </option>

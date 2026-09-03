@@ -5,14 +5,16 @@ import { Field, Select } from '@/components/ui/field'
 import { cn } from '@/lib/utils'
 import {
   CATEGORIES,
+  CITIES,
   DEAL_TYPES,
-  REGIONS,
   STANDARD_SIZES,
   formatSize,
+  getNeighborhoodsByCity,
   type DealType,
 } from '@/lib/real-estate'
 
 export interface Filters {
+  city: string
   region: string
   dealType: '' | DealType
   category: string
@@ -20,6 +22,7 @@ export interface Filters {
 }
 
 export const EMPTY_FILTERS: Filters = {
+  city: '',
   region: '',
   dealType: '',
   category: '',
@@ -37,20 +40,22 @@ export function FilterBar({
 }) {
   const set = (patch: Partial<Filters>) => onChange({ ...filters, ...patch })
   const hasActive =
-    filters.region || filters.dealType || filters.category || filters.size
+    filters.city || filters.region || filters.dealType || filters.category || filters.size
+
+  const neighborhoods = getNeighborhoodsByCity(filters.city)
 
   return (
     <aside className="rounded-2xl border border-border bg-card p-5 shadow-sm">
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <SlidersHorizontal className="size-5 text-primary" />
+          <SlidersHorizontal className="size-5 text-accent" />
           <h2 className="text-lg font-bold text-foreground">تصفية النتائج</h2>
         </div>
         {hasActive ? (
           <button
             type="button"
             onClick={() => onChange(EMPTY_FILTERS)}
-            className="flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+            className="flex items-center gap-1 text-xs font-medium text-accent hover:underline"
           >
             <X className="size-3.5" />
             مسح الكل
@@ -81,15 +86,31 @@ export function FilterBar({
           </div>
         </div>
 
-        {/* Region */}
-        <Field label="المنطقة" htmlFor="filter-region">
+        {/* City */}
+        <Field label="المدينة" htmlFor="filter-city">
+          <Select
+            id="filter-city"
+            value={filters.city}
+            onChange={(e) => set({ city: e.target.value, region: '' })}
+          >
+            <option value="">كل المدن</option>
+            {CITIES.map((c) => (
+              <option key={c.value} value={c.value}>
+                {c.ar}
+              </option>
+            ))}
+          </Select>
+        </Field>
+
+        {/* Neighborhood */}
+        <Field label="الحي" htmlFor="filter-region">
           <Select
             id="filter-region"
             value={filters.region}
             onChange={(e) => set({ region: e.target.value })}
           >
-            <option value="">كل المناطق</option>
-            {REGIONS.map((r) => (
+            <option value="">كل الأحياء</option>
+            {neighborhoods.map((r) => (
               <option key={r.value} value={r.value}>
                 {r.ar}
               </option>
@@ -131,7 +152,7 @@ export function FilterBar({
           </Select>
         </Field>
 
-        <div className="mt-1 rounded-xl bg-accent px-3 py-2.5 text-center text-sm font-semibold text-accent-foreground">
+        <div className="mt-1 rounded-xl bg-primary/5 border border-primary/10 px-3 py-2.5 text-center text-sm font-semibold text-foreground">
           {formatSize(resultCount)} عقار متطابق
         </div>
       </div>
@@ -163,3 +184,4 @@ function ToggleButton({
     </button>
   )
 }
+

@@ -44,7 +44,7 @@ export function PropertyDetail({
 
   const handleShare = async () => {
     const dealText = property.dealType === 'sale' ? 'للبيع' : 'للإيجار'
-    const shareText = `${property.title} - ${dealText} - ${formatPrice(property.price)} ريال | توقيع العقارية`
+    const shareText = `${property.title} - ${dealText} - ${formatPrice(property.price)} ريال | ماضي الثقة العقارية`
     const shareUrl = typeof window !== 'undefined' ? window.location.origin : ''
 
     if (navigator.share) {

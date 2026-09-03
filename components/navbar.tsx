@@ -30,13 +30,13 @@ export function Navbar({
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/logo.png"
-            alt="شعار توقيع العقارية"
+            alt="شعار ماضي الثقة العقارية"
             className="h-20 w-auto sm:h-24"
           />
           <div className="leading-tight">
-            <p className="text-base font-bold sm:text-lg">توقيع العقارية</p>
+            <p className="text-base font-bold sm:text-lg">ماضي الثقة العقارية</p>
             <p className="hidden text-xs text-primary-foreground/70 sm:block">
-              Tawqi&apos; El-Aqariya
+              Madi Al-Thiqa Real Estate
             </p>
           </div>
         </div>

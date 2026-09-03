@@ -10,14 +10,14 @@ const cairo = Cairo({
 })
 
 export const metadata: Metadata = {
-  title: 'توقيع العقارية | Tawqi\' El-Aqariya',
+  title: 'ماضي الثقة العقارية | Madi Al-Thiqa Real Estate',
   description:
-    'منصة توقيع العقارية لبيع وتسويق العقارات وإدارة الأملاك: أراضي، شاليهات، غرف وأحواش في مختلف المناطق.',
+    'منصة ماضي الثقة العقارية لبيع وتسويق العقارات في الرياض والخرج: أراضي، شاليهات، غرف، أحواش واستراحات في أفضل الأحياء.',
   generator: 'v0.app',
 }
 
 export const viewport: Viewport = {
-  themeColor: '#8c0000',
+  themeColor: '#1c1c2e',
   colorScheme: 'light',
 }
 
