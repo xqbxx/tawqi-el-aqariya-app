@@ -66,9 +66,7 @@ export function PropertyDetail({
   }
 
   const dealAr = property.dealType === 'sale' ? 'للبيع' : 'للإيجار'
-  const mapsUrl = isAdmin
-    ? property.googleMapsUrl
-    : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`حي ${regionLabel(property)} ${cityLabel(property)}`)}`
+  const mapsUrl = property.googleMapsUrl
   const whatsappMessage = encodeURIComponent(
     `مرحباً، أنا مهتم بالعقار: ${property.title} (رقم ${property.plotNumber}) المعروض ${dealAr} في ${regionLabel(
       property,
@@ -162,17 +160,19 @@ export function PropertyDetail({
             </div>
           )}
           <div className={`flex flex-col sm:flex-row gap-3 ${isAdmin ? 'w-full' : 'sm:w-auto'}`}>
-            <a
-              href={mapsUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex-1 sm:w-auto"
-            >
-              <Button size="lg" variant="outline" className="h-14 w-full text-base font-semibold">
-                <MapIcon className="size-5 ml-2" />
-                عرض الموقع
-              </Button>
-            </a>
+            {isAdmin && (
+              <a
+                href={mapsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 sm:w-auto"
+              >
+                <Button size="lg" variant="outline" className="h-14 w-full text-base font-semibold">
+                  <MapIcon className="size-5 ml-2" />
+                  عرض الموقع
+                </Button>
+              </a>
+            )}
             <Button
               size="lg"
               variant="outline"
