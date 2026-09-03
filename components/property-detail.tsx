@@ -92,7 +92,7 @@ export function PropertyDetail({
         </h2>
 
         <div className="mt-1 flex items-baseline gap-1.5">
-          <span className="text-2xl font-extrabold text-primary">
+          <span className="text-2xl font-extrabold text-accent">
             {formatPrice(property.price)}
           </span>
           <span className="text-sm font-medium text-muted-foreground">

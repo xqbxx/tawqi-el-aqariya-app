@@ -17,7 +17,7 @@ export function ContactRequestDialog({
   onClose: () => void
 }) {
   const [name, setName] = useState('')
-  const [phone, setPhone] = useState('+966')
+  const [phone, setPhone] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
   const [error, setError] = useState('')
@@ -133,6 +133,12 @@ export function ContactRequestDialog({
                       value={phone}
                       onChange={(e) => {
                         let val = e.target.value.replace(/\D/g, '')
+                        // If they pasted a number containing the country code
+                        if (val.startsWith('9665')) {
+                          val = val.slice(3)
+                        } else if (val.startsWith('05')) {
+                          val = val.slice(1)
+                        }
                         // Only allow up to 9 digits
                         if (val.length > 9) val = val.slice(0, 9)
                         // If it's the first digit, ensure it's a 5
