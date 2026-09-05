@@ -5,8 +5,8 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-sans: var(--font-cairo), 'Cairo Fallback', system-ui, sans-serif;
-  --font-serif: var(--font-cairo), 'Cairo Fallback', serif;
+  --font-sans: var(--font-el-messiri), system-ui, sans-serif;
+  --font-serif: var(--font-el-messiri), serif;
   --color-brand: #1c1c2e;
   --color-brand-foreground: oklch(0.99 0.01 40);
   --color-sidebar-ring: var(--sidebar-ring);
@@ -94,7 +94,7 @@
   }
   html,
   body {
-    font-family: var(--font-cairo), system-ui, sans-serif;
+    font-family: var(--font-el-messiri), system-ui, sans-serif;
   }
   body {
     @apply bg-background text-foreground;

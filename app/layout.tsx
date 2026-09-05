@@ -1,11 +1,11 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
-import { Cairo } from 'next/font/google'
+import { El_Messiri } from 'next/font/google'
 import './globals.css'
 
-const cairo = Cairo({
+const elMessiri = El_Messiri({
   subsets: ['arabic', 'latin'],
-  variable: '--font-cairo',
+  variable: '--font-el-messiri',
   display: 'swap',
 })
 
@@ -27,7 +27,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="ar" dir="rtl" className={`${cairo.variable} ${cairo.className} bg-background`}>
+    <html lang="ar" dir="rtl" className={`${elMessiri.variable} ${elMessiri.className} bg-background`}>
       <body className="font-sans antialiased">
         {children}
         {process.env.NODE_ENV === 'production' && <Analytics />}
