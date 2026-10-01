@@ -534,6 +534,8 @@ export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
             <p>الرياض · الخرج</p>
             <span className="hidden sm:inline text-primary-foreground/40">|</span>
             <p>سجل تجاري: <span className="font-mono">7055009547</span></p>
+            <span className="hidden sm:inline text-primary-foreground/40">|</span>
+            <p>رقم رخصة فال: <span className="font-mono">1200050724</span></p>
           </div>
 
           <div className="flex flex-wrap items-center justify-center gap-3 mt-4">
