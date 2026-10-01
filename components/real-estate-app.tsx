@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo, useState, useEffect, useCallback } from 'react'
-import { SearchX, AlertTriangle, ShieldCheck } from 'lucide-react'
+import { SearchX, AlertTriangle, ShieldCheck, Mail, MessageCircle } from 'lucide-react'
 import { Navbar } from '@/components/navbar'
 import { FilterBar, EMPTY_FILTERS, type Filters } from '@/components/filter-bar'
 import { PropertyCard } from '@/components/property-card'
@@ -13,7 +13,7 @@ import { Modal } from '@/components/ui/modal'
 import { Button } from '@/components/ui/button'
 import { Field, TextInput } from '@/components/ui/field'
 import { HubConnectionBuilder, HubConnectionState, LogLevel, type HubConnection } from '@microsoft/signalr'
-import { STANDARD_SIZES, getNeighborhoodValuesForCity, type Property, API_BASE_URL } from '@/lib/real-estate'
+import { STANDARD_SIZES, getNeighborhoodValuesForCity, type Property, API_BASE_URL, DEFAULT_WHATSAPP } from '@/lib/real-estate'
 
 // Helper to check if a JWT token is expired
 function isTokenExpired(token: string): boolean {
@@ -524,15 +524,34 @@ export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
         </div>
       </main>
 
-      <footer className="border-t border-border bg-primary">
-        <div className="mx-auto flex max-w-7xl flex-col items-center gap-3 px-4 py-8 text-center sm:px-6">
-          <p className="text-lg font-bold text-primary-foreground">
+      <footer className="border-t border-border bg-primary pb-10">
+        <div className="mx-auto flex max-w-7xl flex-col items-center gap-4 px-4 py-8 text-center sm:px-6">
+          <p className="text-xl font-bold text-primary-foreground">
             <span className="text-gold">ماضي الثقة</span> العقارية
           </p>
-          <p className="text-sm text-primary-foreground/60">
-            الرياض · الخرج
-          </p>
-          <p className="text-xs text-primary-foreground/40">
+          
+          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4 text-sm text-primary-foreground/80">
+            <p>الرياض · الخرج</p>
+            <span className="hidden sm:inline text-primary-foreground/40">|</span>
+            <p>سجل تجاري: <span className="font-mono">7055009547</span></p>
+          </div>
+
+          <div className="flex flex-wrap items-center justify-center gap-3 mt-4">
+            <a href={`https://wa.me/${DEFAULT_WHATSAPP}`} target="_blank" rel="noopener noreferrer">
+              <Button size="sm" variant="outline" className="border-primary-foreground/20 bg-transparent text-primary-foreground hover:bg-[#25D366] hover:text-white hover:border-[#25D366] transition-colors">
+                <MessageCircle className="size-4 ml-2" />
+                واتساب
+              </Button>
+            </a>
+            <a href="mailto:madi.al.aqariyah@gmail.com">
+              <Button size="sm" variant="outline" className="border-primary-foreground/20 bg-transparent text-primary-foreground hover:bg-primary-foreground/10 hover:text-white hover:border-primary-foreground/40 transition-colors">
+                <Mail className="size-4 ml-2" />
+                راسلنا
+              </Button>
+            </a>
+          </div>
+
+          <p className="text-xs text-primary-foreground/40 mt-4">
             © {new Date().getFullYear()} جميع الحقوق محفوظة — ماضي الثقة العقارية
           </p>
         </div>
