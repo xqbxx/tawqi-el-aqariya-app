@@ -212,4 +212,4 @@ export function formatSize(size: number): string {
 
 // API & Contact
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.tawqielaqariya.com'
-export const DEFAULT_WHATSAPP = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '966507127018'
+export const DEFAULT_WHATSAPP = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '966550126798'
