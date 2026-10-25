@@ -13,7 +13,7 @@ import { Modal } from '@/components/ui/modal'
 import { Button } from '@/components/ui/button'
 import { Field, TextInput } from '@/components/ui/field'
 import { HubConnectionBuilder, HubConnectionState, LogLevel, type HubConnection } from '@microsoft/signalr'
-import { STANDARD_SIZES, getNeighborhoodValuesForCity, type Property, API_BASE_URL, DEFAULT_WHATSAPP } from '@/lib/real-estate'
+import { STANDARD_SIZES, getNeighborhoodValuesForCity, type Property, API_BASE_URL, DEFAULT_WHATSAPP, findCategory } from '@/lib/real-estate'
 
 // Helper to check if a JWT token is expired
 function isTokenExpired(token: string): boolean {
@@ -160,7 +160,11 @@ export function RealEstateApp({ mode }: { mode: 'public' | 'admin' }) {
       }
       if (filters.region && p.region !== filters.region) return false
       if (filters.dealType && p.dealType !== filters.dealType) return false
-      if (filters.category && p.category !== filters.category) return false
+      if (filters.category) {
+        const filterCat = findCategory(filters.category)?.value || filters.category
+        const propCat = findCategory(p.category)?.value || p.category
+        if (filterCat !== propCat) return false
+      }
       if (filters.size) {
         if (filters.size === 'other') {
           if (!p.isCustomSize && STANDARD_SIZES.includes(p.size)) return false

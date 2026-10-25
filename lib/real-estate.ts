@@ -118,6 +118,7 @@ export const CATEGORIES: OptionItem[] = [
   { value: 'lands', ar: 'اراضي', en: 'Lands' },
   { value: 'villas', ar: 'فلل', en: 'Villas' },
   { value: 'apartments', ar: 'شقق', en: 'Apartments' },
+  { value: 'floors', ar: 'ادوار', en: 'Floors' },
   { value: 'duplex', ar: 'دوبلكس', en: 'Duplex' },
   { value: 'buildings', ar: 'عماير', en: 'Buildings' },
   { value: 'commercial', ar: 'تجاري', en: 'Commercial' },
@@ -177,7 +178,15 @@ export function findNeighborhood(value: string): NeighborhoodItem | undefined {
 }
 
 export function findCategory(value: string): OptionItem | undefined {
-  return CATEGORIES.find((c) => c.value === value)
+  if (!value) return undefined
+  return CATEGORIES.find(
+    (c) =>
+      c.value === value ||
+      c.ar === value ||
+      (c.value === 'floors' && (value === 'ادوار' || value === 'أدوار' || value === 'دور')) ||
+      (c.value === 'lands' && (value === 'اراضي' || value === 'أراضي' || value === 'ارض' || value === 'أرض')) ||
+      (c.value === 'yards' && (value === 'احواش' || value === 'أحواش' || value === 'حوش'))
+  )
 }
 
 export function findDirection(value: string): OptionItem | undefined {
